@@ -78,6 +78,41 @@
 			<artifactId>htm.java</artifactId>
 			<version>0.6.2</version>
 		</dependency>
+		
+		<!-- JDAL -->
+		<dependency>
+			<groupId>org.jdal</groupId>
+			<artifactId>jdal-swing</artifactId>
+			<version>2.1.RC1</version>
+		</dependency>
+		
+		<!-- JmonkeyEngine -->
+		<dependency>
+			<groupId>com.jme3</groupId>
+			<artifactId>jme3-core</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jme3</groupId>
+			<artifactId>jme3-desktop</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jme3</groupId>
+			<artifactId>jme3-lwjgl</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jme3</groupId>
+			<artifactId>jme3-plugins</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jme3</groupId>
+			<artifactId>jme3-blender</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+		
 
 
 		<!-- Test Artifacts -->
@@ -95,4 +130,12 @@
 		</dependency>
 
 	</dependencies>
+	
+	<repositories>
+		<repository>
+			<id>jme3</id>
+			<name>jme3</name>
+			<url>http://updates.jmonkeyengine.org/maven</url>
+		</repository>
+	</repositories>
 </project>
