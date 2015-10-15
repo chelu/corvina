@@ -6,15 +6,17 @@ import java.util.List;
 import javax.swing.JFrame;
 
 import org.numenta.nupic.Parameters;
-import org.numenta.nupic.algorithms.Anomaly;
-import org.numenta.nupic.algorithms.SpatialPooler;
-import org.numenta.nupic.algorithms.TemporalMemory;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
+import org.numenta.nupic.network.sensor.SensorParams;
+import org.numenta.nupic.research.TemporalMemory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
+import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
+import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.MainFrame;
 import info.joseluismartin.corvina.ui.NetworkView;
 
@@ -32,7 +34,7 @@ public class CorvinaConfig {
 	public static final String REGION_2 = "Region 2";
 	public static final String LAYER_23 = "Layer 2/3";
 	public static final String LAYER_4 = "Layer 4";
-	public static final String LAYER_5 = "Layer 4";
+	public static final String LAYER_1 = "Layer 1";
 
 	/**
 	 * Creates the corvina htm network
@@ -40,58 +42,67 @@ public class CorvinaConfig {
 	 */
 	@Bean
 	public Network network() {
-		Network network = new Network(CORVINA, parameters());
-		network.add(region1(network))
-		.add(region2(network))
-		.connect(REGION_2, REGION_1);
+		Network network = new Network(CORVINA, parameters23());
+		network.add(region1(network));
+		
+		// network.add(region2(network))
+		//	.connect(REGION_2, REGION_1);
 
 		return network;
 	}
 
 	/**
-	 * First region with two layers.
-	 * @return
+	 * First region with two layers, layer 23 see a gray scale image of 128x128 pixels.
+	 * (1024x1024 columns) Second has 128x128 columns.
+	 * @return a new Region
 	 */
 	@Bean
 	public Region region1(Network network) {
 		Region region = new Region(REGION_1, network);
-		region.add(Network.createLayer(LAYER_23, parameters())
+		region.add(Network.createLayer(LAYER_23, parameters23())
 				.add(new TemporalMemory())
-				.add(Anomaly.create())
-				.add(new SpatialPooler()))
-		.add(Network.createLayer(LAYER_4, parameters())
-				.add(new TemporalMemory())
-				.add(new SpatialPooler()))
-		.connect(LAYER_4, LAYER_23);
-
+				.add(new LowMemorySpatialPooler()));
+		
+//		.add(Network.createLayer(LAYER_4, parameters4())
+//				.add(new TemporalMemory())
+//				.add(new SpatialPooler()))
+//		.connect(LAYER_4, LAYER_23);
+		
 		return region;
 	}
 
-	/**
-	 * Second region with two layers
-	 * @return
-	 */
 	@Bean
-	public Region region2(Network network) {
-		Region region = new Region(REGION_2, network);
-		region.add(Network.createLayer(LAYER_23, parameters())
-				.add(new TemporalMemory())
-				.add(Anomaly.create())
-				.add(new SpatialPooler()))
-		.add(Network.createLayer(LAYER_4, parameters())
-				.add(new TemporalMemory())
-				.add(new SpatialPooler()))
-		.connect(LAYER_4, LAYER_23);
+	public ImageSensor imageSensor() {
+		return new ImageSensor("/home/chelu/workspaces/htm/corvina/src/main/resources/images/test.png");
+	}
 
-		return region;
+	@Bean
+	public SensorParams sensorParams() {
+		SensorParams sensorParams = SensorParams.create(
+				new String[] {"PATH"}, "/home/chelu/workspaces/htm/corvina/src/main/resources/images/test.png");
+		
+		return sensorParams;
 	}
 
 
 	@Bean
-	public Parameters parameters() {
+	public Parameters parameters23() {
+		int[] dimensions = {128, 128};
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {15625});
+		// 512x512 colums, 32 cells/column.
+		p.setColumnDimensions(dimensions);
+		p.setInputDimensions(new int[] {128, 128});
 
+		return p;
+	}
+	
+	@Bean
+	public Parameters parameters4() {
+		int[] dimensions = {64, 64};
+		Parameters p =  Parameters.getAllDefaultParameters();
+		// 128x128 colums, 32 cells/column.
+		p.setColumnDimensions(dimensions);
+		p.setInputDimensions(new int[] {128, 128});
 		return p;
 	}
 
@@ -106,6 +117,7 @@ public class CorvinaConfig {
 	 * @return
 	 */
 	@Bean
+	@Lazy
 	public JFrame mainFrame() {
 		MainFrame mainFrame = new MainFrame(); 
 		
@@ -117,6 +129,7 @@ public class CorvinaConfig {
 	 * @return
 	 */
 	@Bean
+	@Lazy
 	public NetworkView networkView() {
 		NetworkView networkView = new NetworkView(network());
 		

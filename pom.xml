@@ -73,10 +73,14 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 
+		<!-- <dependency> <groupId>org.numenta</groupId> <artifactId>htm.java</artifactId> 
+			<version>0.6.2</version> </dependency> -->
+
 		<dependency>
-			<groupId>org.numenta</groupId>
-			<artifactId>htm.java</artifactId>
-			<version>0.6.2</version>
+			<groupId>io.reactivex</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>1.0.10</version>
+			<scope />
 		</dependency>
 		
 		<!-- JDAL -->
@@ -85,7 +89,7 @@
 			<artifactId>jdal-swing</artifactId>
 			<version>2.1.RC1</version>
 		</dependency>
-		
+
 		<!-- JmonkeyEngine -->
 		<dependency>
 			<groupId>com.jme3</groupId>
@@ -112,7 +116,16 @@
 			<artifactId>jme3-blender</artifactId>
 			<version>3.0.10</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-imaging</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
 
 
 		<!-- Test Artifacts -->
@@ -130,12 +143,24 @@
 		</dependency>
 
 	</dependencies>
-	
+
 	<repositories>
 		<repository>
 			<id>jme3</id>
 			<name>jme3</name>
 			<url>http://updates.jmonkeyengine.org/maven</url>
 		</repository>
+		<repository>
+			<id>apache.snapshots</id>
+			<name>Apache Development Snapshot Repository</name>
+			<url>https://repository.apache.org/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
 	</repositories>
 </project>

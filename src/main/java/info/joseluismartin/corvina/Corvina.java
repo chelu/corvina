@@ -2,18 +2,20 @@ package info.joseluismartin.corvina;
 
 
 import java.awt.EventQueue;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
-import javax.swing.LookAndFeel;
-import javax.swing.UIManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdal.swing.ApplicationContextGuiFactory;
-import org.jdal.swing.form.FormUtils;
+import org.numenta.nupic.network.Inference;
+import org.numenta.nupic.network.Network;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import info.joseluismartin.corvina.config.CorvinaConfig;
+import info.joseluismartin.corvina.htm.LogSubscriber;
+import info.joseluismartin.corvina.sensor.ImageSensor;
 
 /**
  * Application launcher. Load Spring context and start the Network.
@@ -31,16 +33,26 @@ public class Corvina {
 		ApplicationContextGuiFactory.setPlasticLookAndFeel();
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
 		
-		// Start swing application on event thread
-		EventQueue.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				JFrame main = ctx.getBean("mainFrame", JFrame.class);
-				main.setVisible(true);
-			}
-		});
+		Network network = ctx.getBean(Network.class);
+		network.observe().subscribe(new LogSubscriber<Inference>());
+		ImageSensor sensor = ctx.getBean(ImageSensor.class);
 
+		// Start swing application on event thread
+//		EventQueue.invokeLater(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				JFrame main = ctx.getBean("mainFrame", JFrame.class);
+//				main.setVisible(true);
+//			}
+//		});
+		
+		int[] data = sensor.getSdr();
+		
+		log.debug("input data length: " + data.length);
+		
+		network.compute(data);
+		
 		// wait for ever...
 		synchronized (LOCK) {
 			try {
