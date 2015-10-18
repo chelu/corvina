@@ -1,22 +1,28 @@
 package info.joseluismartin.corvina.config;
 
+import java.awt.image.ImageFilter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
 
 import org.numenta.nupic.Parameters;
+import org.numenta.nupic.algorithms.TemporalMemory;
+import org.numenta.nupic.algorithms.Anomaly.AveragedAnomalyRecordList;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
 import org.numenta.nupic.network.sensor.SensorParams;
-import org.numenta.nupic.research.TemporalMemory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
+import info.joseluismartin.corvina.Corvina;
 import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
+import info.joseluismartin.corvina.image.RotateImageFilter;
 import info.joseluismartin.corvina.sensor.ImageSensor;
+import info.joseluismartin.corvina.ui.ImageSensorView;
+import info.joseluismartin.corvina.ui.LayerView;
 import info.joseluismartin.corvina.ui.MainFrame;
 import info.joseluismartin.corvina.ui.NetworkView;
 
@@ -75,6 +81,18 @@ public class CorvinaConfig {
 	public ImageSensor imageSensor() {
 		return new ImageSensor("/home/chelu/workspaces/htm/corvina/src/main/resources/images/test.png");
 	}
+	
+	@Bean 
+	public ImageSensorView imageSensorView() {
+		ImageSensorView imsv = new ImageSensorView();
+		imsv.setModel(imageSensor());
+		List<ImageFilter> available = new ArrayList<>();
+		available.add(new RotateImageFilter());
+		imsv.setAvailableFilters(available);
+		imsv.refresh();
+		
+		return imsv;
+	}
 
 	@Bean
 	public SensorParams sensorParams() {
@@ -118,7 +136,7 @@ public class CorvinaConfig {
 	 */
 	@Bean
 	@Lazy
-	public JFrame mainFrame() {
+	public MainFrame mainFrame() {
 		MainFrame mainFrame = new MainFrame(); 
 		
 		return mainFrame;
@@ -134,6 +152,17 @@ public class CorvinaConfig {
 		NetworkView networkView = new NetworkView(network());
 		
 		return networkView;
+	}
+	
+	@Bean
+	@Lazy
+	public LayerView layerView() {
+		return new LayerView();
+	}
+	
+	@Bean
+	public Corvina corvina() {
+		return new Corvina();
 	}
 }
 

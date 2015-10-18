@@ -36,6 +36,8 @@ public class ImageSensor {
 	
 	/** Filters to apply to image before expose it to HTM. */
 	private List<ImageFilter> filters = new ArrayList<>();
+	/** Filters to apply in every network image request */
+	private List<ImageFilter> dinamycFilters = new ArrayList<>();
 	private BufferedImage image;
 	private ValueList valueList;
 	private SensorParams params;
@@ -50,7 +52,7 @@ public class ImageSensor {
 	 * Load image from filesystem.
 	 * @param pathStr image path
 	 */
-	private void loadImage(String path) {
+	public void loadImage(String path) {
 		BufferedImage source = null;
 		try {
 			source = ImageIO.read(new File(path));
@@ -129,6 +131,8 @@ public class ImageSensor {
 	 * @return SDR representation of image data.
 	 */
 	public int[] getSdr() {
+		this.image = applyFilters(this.dinamycFilters); 
+		
 		byte[] data =  ((DataBufferByte) this.image.getRaster().getDataBuffer()).getData();
 		List<Integer> sdr = new ArrayList<>();
 
@@ -139,6 +143,15 @@ public class ImageSensor {
 		}
 		
 		return sdr.stream().mapToInt(i -> i).toArray();
+	}
+
+	private BufferedImage applyFilters(List<ImageFilter> fs) {
+		BufferedImage filtered = this.image;
+		
+		for (ImageFilter filter : fs)
+			filtered = applyFilter(filtered, filter);
+		
+		return filtered;
 	}
 
 	public SensorParams getParams() {
@@ -172,5 +185,20 @@ public class ImageSensor {
 	public void setImage(BufferedImage image) {
 		this.image = image;
 	}
+	
+	/**
+	 * @return the dinamycFilters
+	 */
+	public List<ImageFilter> getDinamycFilters() {
+		return dinamycFilters;
+	}
+
+	/**
+	 * @param dinamycFilters the dinamycFilters to set
+	 */
+	public void setDinamycFilters(List<ImageFilter> dinamycFilters) {
+		this.dinamycFilters = dinamycFilters;
+	}
+
 
 }

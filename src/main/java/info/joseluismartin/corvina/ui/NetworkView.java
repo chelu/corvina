@@ -1,34 +1,26 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Component;
-import java.awt.Dimension;
 
-import javax.annotation.PostConstruct;
+import javax.swing.Box;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jdal.swing.AbstractView;
+import org.jdal.swing.form.FormUtils;
 import org.numenta.nupic.network.Network;
-
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeCanvasContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Viewer for HTM Networks.
+ * 2D View for {@link Network}
  * 
- * @author Jose Luis Martin
- * @since 1.0
+ * @author Jose Luis Martin.
+ * @since 1.0	
  */
 public class NetworkView extends AbstractView<Network> {
-	
-	private JLabel name = new JLabel();
-	private Canvas canvas;
-	private JmeCanvasContext canvasContext;
 
-	private NetworkApplication app;
+	@Autowired
+	private LayerView layerView;
 	
 	public NetworkView() {
 		super();
@@ -38,35 +30,26 @@ public class NetworkView extends AbstractView<Network> {
 		super(model);
 	}
 
-	@PostConstruct
-	public void init() {
-		AppSettings settings = new AppSettings(true);
-		settings.setWidth(1024);
-		settings.setHeight(768);
-		this.app = new NetworkApplication();
-		this.app.setNetwork(getModel());
-		this.app.setSettings(settings);
-		this.app.createCanvas();
-		this.canvasContext = (JmeCanvasContext) app.getContext();
-		this.canvas = this.canvasContext.getCanvas();
-		this.canvas.setPreferredSize(new Dimension(1024, 768));
-		
-		autobind();
-	}
-
 	@Override
 	protected JComponent buildPanel() {
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(createNorthPanel(), BorderLayout.NORTH);
-		panel.add(this.canvas, BorderLayout.CENTER);
-		this.app.startCanvas();
+		panel.setBorder(FormUtils.createEmptyBorder(5));
+		Box box = Box.createVerticalBox();
+		box.add(this.layerView.getPanel());
+		panel.add(box, BorderLayout.CENTER);
 		
 		return panel;
 	}
 
-	protected Component createNorthPanel() {
-		return this.name;
-	}
+	@Override
+	protected void doRefresh() {
+		Network model = getModel();
 		
-}
+		if (model == null)
+			return;
+		
+		this.layerView.setModel(model.getRegions().get(0).getTail());
+		this.layerView.refresh();
+	}
 
+}

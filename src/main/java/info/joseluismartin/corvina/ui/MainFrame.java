@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
+import org.numenta.nupic.network.Network;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,15 +23,19 @@ import org.springframework.stereotype.Component;
 public class MainFrame extends JFrame {
 
 	private static final String NETWORK = "Network";
-	private static final String INPUT = "Input";
+	private static final String IMAGE_SENSOR = "Image Sensor";
+	private static final String LAYER = "Layer";
+	
 	private JMenu menu = new JMenu();
 	private JToolBar toolBar = new JToolBar();
 	private JTabbedPane tab = new JTabbedPane();
-	private JPanel inputPanel = new JPanel();
 	
 	@Autowired
 	private NetworkView networkView;
-	
+	@Autowired
+	private ImageSensorView imageSensorView;
+	@Autowired
+	private Network network;
 	
 	public MainFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,14 +43,17 @@ public class MainFrame extends JFrame {
 	
 	@PostConstruct
 	public void init() {
+		this.tab.add(IMAGE_SENSOR, this.imageSensorView.getPanel());
 		this.networkView.refresh();
 		this.tab.add(NETWORK, this.networkView.getPanel());
-		this.tab.add(INPUT, inputPanel);
 		getContentPane().add(this.tab);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setPreferredSize(new Dimension(1024, 768));
 	}
-	
-	
+
+	public void refresh() {
+		this.networkView.refresh();
+		this.imageSensorView.refresh();
+	}
 }
 

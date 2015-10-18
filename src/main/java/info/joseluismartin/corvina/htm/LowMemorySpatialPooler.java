@@ -3,9 +3,9 @@ package info.joseluismartin.corvina.htm;
 import java.util.Arrays;
 
 import org.numenta.nupic.Connections;
+import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.model.Column;
 import org.numenta.nupic.model.Pool;
-import org.numenta.nupic.research.SpatialPooler;
 import org.numenta.nupic.util.LowMemorySparseBinaryMatrix;
 import org.numenta.nupic.util.SparseBinaryMatrix;
 import org.numenta.nupic.util.SparseObjectMatrix;
