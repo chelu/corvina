@@ -6,6 +6,7 @@ import org.numenta.nupic.Connections;
 import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.model.Column;
 import org.numenta.nupic.model.Pool;
+import org.numenta.nupic.util.FlatArrayMatrix;
 import org.numenta.nupic.util.LowMemorySparseBinaryMatrix;
 import org.numenta.nupic.util.SparseBinaryMatrix;
 import org.numenta.nupic.util.SparseObjectMatrix;
@@ -35,9 +36,14 @@ public class LowMemorySpatialPooler extends SpatialPooler {
         //Fill the sparse matrix with column objects
         for(int i = 0;i < numColumns;i++) { mem.set(i, new Column(c.getCellsPerColumn(), i)); }
         
-        c.setPotentialPools(new SparseObjectMatrix<Pool>(c.getMemory().getDimensions()));
+        c.setPotentialPools(new FlatArrayMatrix<Pool>(c.getMemory().getDimensions()));
+        LowMemorySparseBinaryMatrix connected = 
+        		new LowMemorySparseBinaryMatrix(new int[] { numColumns, numInputs });
         
-        c.setConnectedMatrix(new LowMemorySparseBinaryMatrix(new int[] { numColumns, numInputs }));
+        for (int i = 0; i < numColumns; i++)
+        		connected.set(1, i, i);
+        
+        c.setConnectedMatrix(connected);
         
         double[] tieBreaker = new double[numColumns];
         for(int i = 0;i < numColumns;i++) {

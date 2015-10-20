@@ -1,25 +1,23 @@
 package info.joseluismartin.corvina.config;
 
-import java.awt.image.ImageFilter;
+import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-
 import org.numenta.nupic.Parameters;
 import org.numenta.nupic.algorithms.TemporalMemory;
-import org.numenta.nupic.algorithms.Anomaly.AveragedAnomalyRecordList;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
 import org.numenta.nupic.network.sensor.SensorParams;
+import org.numenta.nupic.util.LowMemorySparseBinaryMatrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import info.joseluismartin.corvina.Corvina;
 import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
-import info.joseluismartin.corvina.image.RotateImageFilter;
+import info.joseluismartin.corvina.image.RotateImageOp;
 import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.ImageSensorView;
 import info.joseluismartin.corvina.ui.LayerView;
@@ -41,6 +39,8 @@ public class CorvinaConfig {
 	public static final String LAYER_23 = "Layer 2/3";
 	public static final String LAYER_4 = "Layer 4";
 	public static final String LAYER_1 = "Layer 1";
+	
+	private static int[] dimensions = {64, 64};
 
 	/**
 	 * Creates the corvina htm network
@@ -79,15 +79,15 @@ public class CorvinaConfig {
 
 	@Bean
 	public ImageSensor imageSensor() {
-		return new ImageSensor("/home/chelu/workspaces/htm/corvina/src/main/resources/images/test.png");
+		return new ImageSensor("/home/chelu/workspaces/htm/corvina/src/main/resources/images/test64.png");
 	}
 	
 	@Bean 
 	public ImageSensorView imageSensorView() {
 		ImageSensorView imsv = new ImageSensorView();
 		imsv.setModel(imageSensor());
-		List<ImageFilter> available = new ArrayList<>();
-		available.add(new RotateImageFilter());
+		List<BufferedImageOp> available = new ArrayList<>();
+		available.add(new RotateImageOp());
 		imsv.setAvailableFilters(available);
 		imsv.refresh();
 		
@@ -105,11 +105,13 @@ public class CorvinaConfig {
 
 	@Bean
 	public Parameters parameters23() {
-		int[] dimensions = {128, 128};
 		Parameters p =  Parameters.getAllDefaultParameters();
 		// 512x512 colums, 32 cells/column.
 		p.setColumnDimensions(dimensions);
-		p.setInputDimensions(new int[] {128, 128});
+		p.setInputDimensions(dimensions);
+		p.setLearningRadius(12);
+		p.setCellsPerColumn(8);
+		p.setMinThreshold(3);
 
 		return p;
 	}
@@ -120,7 +122,8 @@ public class CorvinaConfig {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		// 128x128 colums, 32 cells/column.
 		p.setColumnDimensions(dimensions);
-		p.setInputDimensions(new int[] {128, 128});
+		p.setInputDimensions(new int[] {256, 256});
+		
 		return p;
 	}
 

@@ -7,6 +7,8 @@ import javax.swing.JPanel;
 
 import org.jdal.swing.AbstractView;
 import org.numenta.nupic.network.Layer;
+import org.numenta.nupic.network.Network;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 2D View for {@link Layer}
@@ -16,6 +18,9 @@ import org.numenta.nupic.network.Layer;
  */
 public class LayerView extends AbstractView<Layer<?>> {
 
+	@Autowired
+	private Network network;
+	
 	public LayerView() {
 	}
 	
@@ -43,6 +48,7 @@ public class LayerView extends AbstractView<Layer<?>> {
 		MatrixPanel panel = (MatrixPanel) getPanel();
 		panel.setDimensions(layer.getConnections().getMemory().getDimensions());
 		panel.setValues(layer.getActiveColumns());
+		panel.repaint();
 	}
 	
 

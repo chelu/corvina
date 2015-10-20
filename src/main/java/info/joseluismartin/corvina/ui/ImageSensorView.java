@@ -1,7 +1,7 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Label;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageFilter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +35,9 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	
 	private JLabel imageLabel = new JLabel() ;
 	private ImageIcon imageIcon = new ImageIcon();
-	private List<ImageFilter> availableFilters = new ArrayList<>();
+	private List<BufferedImageOp> availableFilters = new ArrayList<>();
 	private Selector<ImageFilter> filters;
-	private Selector<ImageFilter> dinamycFilters;
+	private Selector<BufferedImageOp> dinamycFilters;
 	private Box leftPanel;
 	private Box northPanel;
 	private JButton applyFilterButton;
@@ -45,9 +45,11 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	
 	@PostConstruct
 	public void init() {
-		this.filters = new Selector<>(this.availableFilters);
+		this.filters = new Selector<>();
+		this.filters.setListWidth(200);
 		this.filters.init();
 		this.dinamycFilters = new Selector<>(this.availableFilters);
+		this.dinamycFilters.setListWidth(200);
 		this.dinamycFilters.init();
 		this.applyFilterButton = new JButton(getMessage("applyFilter"));
 		this.applyFilterButton.addActionListener(e -> update());
@@ -61,7 +63,9 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 		JPanel panel = new JPanel(new BorderLayout());
 		this.imageLabel.setIcon(this.imageIcon);
 		this.imageLabel.setHorizontalAlignment(JLabel.CENTER);
-		panel.add(new JScrollPane(this.imageLabel), BorderLayout.CENTER);
+		JScrollPane scroll = new JScrollPane(this.imageLabel);
+		scroll.setBorder(FormUtils.createEmptyBorder(5));
+		panel.add(scroll, BorderLayout.CENTER);
 		this.leftPanel = createLeftPanel();
 		panel.add(this.leftPanel, BorderLayout.EAST);
 		this.northPanel = createNorthPanel();
@@ -75,6 +79,7 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 */
 	private Box createNorthPanel() {
 		Box box = Box.createHorizontalBox();
+		box.setBorder(FormUtils.createEmptyBorder(5));
 		box.add(this.chooserButton);
 		
 		return box;
@@ -93,7 +98,12 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 		fb.row(SimpleBoxFormBuilder.SIZE_UNDEFINED);
 		fb.add(this.dinamycFilters);
 		fb.row();
+		fb.startBox();
+		fb.row();
+		fb.add(Box.createHorizontalGlue());
 		fb.add(this.applyFilterButton);
+		fb.add(Box.createHorizontalGlue());
+		fb.endBox();
 		
 		return (Box) fb.getForm();
 	}
@@ -104,7 +114,14 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 		if (model == null)
 			return;
 		
-		this.imageIcon.setImage(model.getImage());
+		refreshImage();
+	}
+
+	/**
+	 * @param model
+	 */
+	public void refreshImage() {
+		this.imageIcon.setImage(getModel().getImage());
 		this.imageLabel.repaint();
 	}
 	
@@ -124,14 +141,14 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	/**
 	 * @return the availableFilters
 	 */
-	public List<ImageFilter> getAvailableFilters() {
+	public List<BufferedImageOp> getAvailableFilters() {
 		return availableFilters;
 	}
 
 	/**
 	 * @param availableFilters the availableFilters to set
 	 */
-	public void setAvailableFilters(List<ImageFilter> availableFilters) {
+	public void setAvailableFilters(List<BufferedImageOp> availableFilters) {
 		this.availableFilters = availableFilters;
 	}
 

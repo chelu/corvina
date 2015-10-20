@@ -40,7 +40,7 @@ public class ImageSensorSubscriber extends Subscriber<Inference> {
 		log.info("OnNext");
 		log.info(inference.getSDR());
 		this.mainFrame.refresh();
-		this.network.compute(this.imageSensor.getSdr());
+		this.network.compute(this.imageSensor.getAsDense());
 	}
 
 }

@@ -1,10 +1,12 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Panel;
 
-import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.jdal.swing.AbstractView;
 import org.jdal.swing.form.FormUtils;
@@ -34,10 +36,8 @@ public class NetworkView extends AbstractView<Network> {
 	protected JComponent buildPanel() {
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(FormUtils.createEmptyBorder(5));
-		Box box = Box.createVerticalBox();
-		box.add(this.layerView.getPanel());
-		panel.add(box, BorderLayout.CENTER);
-		
+		panel.add(new JScrollPane(this.layerView.getPanel()), BorderLayout.CENTER);
+
 		return panel;
 	}
 

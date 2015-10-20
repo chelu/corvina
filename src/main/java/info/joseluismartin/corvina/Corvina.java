@@ -2,6 +2,7 @@ package info.joseluismartin.corvina;
 
 
 import java.awt.EventQueue;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,40 +24,41 @@ import rx.Subscriber;
  * @since 1.0
  */
 public class Corvina extends Subscriber<Inference> {
-	
+
 	private static final Object LOCK = new Object();
 	private static Log log = LogFactory.getLog(Corvina.class);
-	
+
 	@Autowired
 	private Network network;
 	@Autowired 
 	private MainFrame mainFrame;
-	@Autowired ImageSensor imageSensor;
-	
+	@Autowired 
+	private ImageSensor imageSensor;
+
+
 	private volatile boolean running = true;
-	
+
 	public static void main(String[] args) {
 		log.info("Starting corvina...");
 		ApplicationContextGuiFactory.setPlasticLookAndFeel();
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
-		
+
 		Network network = ctx.getBean(Network.class);
 		MainFrame main = ctx.getBean("mainFrame", MainFrame.class);
 		Corvina corvina = ctx.getBean(Corvina.class);
 		network.observe().subscribe(corvina);
-		ImageSensor sensor = ctx.getBean(ImageSensor.class);
-		
+
 		// Start swing application on event thread
 		EventQueue.invokeLater(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				main.setVisible(true);
 			}
 		});
-		
-		network.compute(sensor.getSdr());
-		
+
+		corvina.run();
+
 		// wait for ever...
 		synchronized (LOCK) {
 			try {
@@ -65,22 +67,33 @@ public class Corvina extends Subscriber<Inference> {
 				log.info("Exiting.");
 			}
 		}
-		
+
 		ctx.close();
+	}
+
+	public void run() {
+
+		while (this.running) {
+			this.mainFrame.refresh();
+			int[] input = this.imageSensor.getAsDense();
+			long millis = System.currentTimeMillis();
+			this.network.compute(input);
+			log.info((double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
+		}
 	}
 
 	@Override
 	public void onCompleted() {
-		// TODO Auto-generated method stub
-		
+		log.info("On Completed");
+
 	}
 
 	@Override
 	public void onError(Throwable e) {
-		// TODO Auto-generated method stub
-		
+		log.info("On Error");
+		log.error(e);
 	}
-	
+
 	public void onStart() {
 		log.info("On Start");
 	}
@@ -88,10 +101,7 @@ public class Corvina extends Subscriber<Inference> {
 	@Override
 	public void onNext(Inference t) {
 		log.info("On Next");
-		this.mainFrame.refresh();
-		if (running) {
-			this.network.compute(this.imageSensor.getSdr());
-		}
+		log.info(Arrays.toString(t.getSparseActives()));
 	}
 
 }

@@ -87,7 +87,7 @@
 		<dependency>
 			<groupId>org.jdal</groupId>
 			<artifactId>jdal-swing</artifactId>
-			<version>2.1.RC1</version>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- JmonkeyEngine -->
@@ -149,6 +149,11 @@
 			<id>jme3</id>
 			<name>jme3</name>
 			<url>http://updates.jmonkeyengine.org/maven</url>
+		</repository>
+		<repository>
+			<id>jdal</id>
+			<name>JDAL Repository</name>
+			<url>http://www.jdal.org/repo</url>
 		</repository>
 		<repository>
 			<id>apache.snapshots</id>

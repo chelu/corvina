@@ -3,6 +3,7 @@ package info.joseluismartin.corvina.sensor;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.DataBufferByte;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
@@ -24,6 +25,8 @@ import org.numenta.nupic.network.sensor.SensorFlags;
 import org.numenta.nupic.network.sensor.SensorParams;
 import org.numenta.nupic.util.Tuple;
 
+import info.joseluismartin.corvina.image.ImageUtils;
+
 /**
  * Sensor to load images
  *   
@@ -37,8 +40,9 @@ public class ImageSensor {
 	/** Filters to apply to image before expose it to HTM. */
 	private List<ImageFilter> filters = new ArrayList<>();
 	/** Filters to apply in every network image request */
-	private List<ImageFilter> dinamycFilters = new ArrayList<>();
+	private List<BufferedImageOp> dinamycFilters = new ArrayList<>();
 	private BufferedImage image;
+	private BufferedImage original;
 	private ValueList valueList;
 	private SensorParams params;
 
@@ -69,12 +73,21 @@ public class ImageSensor {
 		// convert to gray scale
 		this.image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		this.image.getGraphics().drawImage(source, 0, 0, null);
+		this.original = ImageUtils.deepCopy(this.image);
 	}
 
 	private BufferedImage applyFilter(BufferedImage source, ImageFilter filter) {
 		BufferedImage bi = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		FilteredImageSource fis = new FilteredImageSource(source.getSource(), filter);
 		Image filtered = Toolkit.getDefaultToolkit().createImage(fis);
+		bi.getGraphics().drawImage(filtered, 0, 0, null);
+		
+		return bi;
+	}
+	
+	private BufferedImage applyOp(BufferedImage source, BufferedImageOp op) {
+		BufferedImage bi = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage filtered = op.filter(source, null);
 		bi.getGraphics().drawImage(filtered, 0, 0, null);
 		
 		return bi;
@@ -128,28 +141,37 @@ public class ImageSensor {
 	}
 	
 	/** 
-	 * @return SDR representation of image data.
+	 * @return dense in input representation of image data.
 	 */
-	public int[] getSdr() {
-		this.image = applyFilters(this.dinamycFilters); 
+	public synchronized int[] getAsDense() {
+	
+		this.image = applyDinamycFilters(this.dinamycFilters); 
 		
 		byte[] data =  ((DataBufferByte) this.image.getRaster().getDataBuffer()).getData();
-		List<Integer> sdr = new ArrayList<>();
-
+		List<Integer> dense = new ArrayList<>();
+		int zeros = 0;
+		int ones = 0;
 		for (Byte b : data) {
-			int value = (int) b;
-			sdr.add(value > 127 ? 0 : 1);
-			
+			if (b.intValue() == 0) {
+				zeros++;
+				dense.add(0);
+			}
+			else {
+				ones++;
+				dense.add(1);
+			}
 		}
 		
-		return sdr.stream().mapToInt(i -> i).toArray();
+		log.debug("zeros [" + zeros + "] ones [" + ones + "]");
+		
+		return dense.stream().mapToInt(i -> i).toArray();
 	}
 
-	private BufferedImage applyFilters(List<ImageFilter> fs) {
-		BufferedImage filtered = this.image;
+	private synchronized BufferedImage applyDinamycFilters(List<BufferedImageOp> fs) {
+		BufferedImage filtered = this.original;
 		
-		for (ImageFilter filter : fs)
-			filtered = applyFilter(filtered, filter);
+		for (BufferedImageOp op : fs)
+			filtered = applyOp(filtered, op);
 		
 		return filtered;
 	}
@@ -189,16 +211,16 @@ public class ImageSensor {
 	/**
 	 * @return the dinamycFilters
 	 */
-	public List<ImageFilter> getDinamycFilters() {
+	public synchronized List<BufferedImageOp> getDinamycFilters() {
 		return dinamycFilters;
+	
 	}
 
 	/**
 	 * @param dinamycFilters the dinamycFilters to set
 	 */
-	public void setDinamycFilters(List<ImageFilter> dinamycFilters) {
-		this.dinamycFilters = dinamycFilters;
+	public synchronized void setDinamycFilters(List<BufferedImageOp> dinamycFilters) {
+			this.dinamycFilters = dinamycFilters;
 	}
-
 
 }

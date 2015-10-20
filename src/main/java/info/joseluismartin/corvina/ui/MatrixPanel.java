@@ -4,13 +4,20 @@ package info.joseluismartin.corvina.ui;
  * Panel to draw column active columns.
  */
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class MatrixPanel extends JPanel {
+	
+	private static final Log log = LogFactory.getLog(MatrixPanel.class);
 
 	private int[] dimensions;
 	private int[] values;
@@ -23,8 +30,7 @@ public class MatrixPanel extends JPanel {
 			return;
 		
 		Graphics2D g2 = (Graphics2D) g;
-		
-		
+		Color oldColor = g2.getColor();
 		for (int i = 0; i < dimensions[0]; i++) {
 			for (int j = 0; j < dimensions[1]; j++) {
 				int value = values[computeIndex(i, j)];
@@ -34,6 +40,8 @@ public class MatrixPanel extends JPanel {
 				g2.fill(e);
 			}
 		}
+		
+		g2.setColor(oldColor);
 	}
 
 	private int computeIndex(int i, int j) {
@@ -53,6 +61,8 @@ public class MatrixPanel extends JPanel {
 	 */
 	public void setDimensions(int[] dimensions) {
 		this.dimensions = dimensions;
+		Dimension d = new Dimension(dimensions[0]*gap + 20, dimensions[1]*gap + 20);
+		setPreferredSize(d);
 	}
 
 	/**
