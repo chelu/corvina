@@ -18,9 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class LayerView extends AbstractView<Layer<?>> {
 
-	@Autowired
-	private Network network;
-	
 	public LayerView() {
 	}
 	

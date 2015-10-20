@@ -40,7 +40,7 @@ public class CorvinaConfig {
 	public static final String LAYER_4 = "Layer 4";
 	public static final String LAYER_1 = "Layer 1";
 	
-	private static int[] dimensions = {64, 64};
+	private int[] dimensions = {64, 64};
 
 	/**
 	 * Creates the corvina htm network
@@ -67,12 +67,12 @@ public class CorvinaConfig {
 		Region region = new Region(REGION_1, network);
 		region.add(Network.createLayer(LAYER_23, parameters23())
 				.add(new TemporalMemory())
-				.add(new LowMemorySpatialPooler()));
+				.add(new LowMemorySpatialPooler()))
 		
-//		.add(Network.createLayer(LAYER_4, parameters4())
-//				.add(new TemporalMemory())
-//				.add(new SpatialPooler()))
-//		.connect(LAYER_4, LAYER_23);
+		.add(Network.createLayer(LAYER_4, parameters4())
+				.add(new TemporalMemory())
+				.add(new LowMemorySpatialPooler()))
+		.connect(LAYER_4, LAYER_23);
 		
 		return region;
 	}
@@ -106,23 +106,21 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters23() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		// 512x512 colums, 32 cells/column.
-		p.setColumnDimensions(dimensions);
+		p.setColumnDimensions(new int[] {8, 8});
 		p.setInputDimensions(dimensions);
-		p.setLearningRadius(12);
-		p.setCellsPerColumn(8);
-		p.setMinThreshold(3);
+		p.setCellsPerColumn(16);
 
 		return p;
 	}
 	
 	@Bean
 	public Parameters parameters4() {
-		int[] dimensions = {64, 64};
 		Parameters p =  Parameters.getAllDefaultParameters();
-		// 128x128 colums, 32 cells/column.
-		p.setColumnDimensions(dimensions);
-		p.setInputDimensions(new int[] {256, 256});
+		p.setColumnDimensions(this.dimensions);
+		p.setInputDimensions(this.dimensions);
+		p.setCellsPerColumn(16);
+		p.setLearningRadius(4);
+		p.setPotentialRadius(4);
 		
 		return p;
 	}
