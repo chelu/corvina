@@ -1,8 +1,10 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageFilter;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	private Box northPanel;
 	private JButton applyFilterButton;
 	private JButton chooserButton;
+	private File lastDirectory;
 	
 	@PostConstruct
 	public void init() {
@@ -92,9 +95,11 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	private Box createLeftPanel() {
 		BoxFormBuilder fb = new BoxFormBuilder(FormUtils.createEmptyBorder(5));
 		fb.row();
-		fb.add(new TitledSeparator(getMessage("Filters")));
+		fb.add(new TitledSeparator(getMessage("Load Filters")));
 		fb.row(SimpleBoxFormBuilder.SIZE_UNDEFINED);
 		fb.add(this.filters);
+		fb.row();
+		fb.add(new TitledSeparator(getMessage("Input Filters")));
 		fb.row(SimpleBoxFormBuilder.SIZE_UNDEFINED);
 		fb.add(this.dinamycFilters);
 		fb.row();
@@ -121,6 +126,11 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 * @param model
 	 */
 	public void refreshImage() {
+		BufferedImage image = getModel().getImage();
+		
+		if (image == null)
+			return;
+		
 		this.imageIcon.setImage(getModel().getImage());
 		this.imageLabel.repaint();
 	}
@@ -130,9 +140,13 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 */
 	private void chooseImageFile() {
 		JFileChooser chooser = new JFileChooser();
-		
+		if (this.lastDirectory != null)
+			chooser.setCurrentDirectory(lastDirectory);
+			
 		if (chooser.showOpenDialog(getPanel()) == JFileChooser.APPROVE_OPTION) {
-			getModel().loadImage(chooser.getSelectedFile().getAbsolutePath());
+			File file = chooser.getSelectedFile();
+			this.lastDirectory = file.getParentFile();
+			getModel().loadImage(file.getAbsolutePath());
 			refresh();
 		}
 	}

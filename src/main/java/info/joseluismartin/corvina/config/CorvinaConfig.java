@@ -10,13 +10,13 @@ import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
 import org.numenta.nupic.network.sensor.SensorParams;
-import org.numenta.nupic.util.LowMemorySparseBinaryMatrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import info.joseluismartin.corvina.Corvina;
 import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
+import info.joseluismartin.corvina.image.RandomSweepOp;
 import info.joseluismartin.corvina.image.RotateImageOp;
 import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.ImageSensorView;
@@ -39,6 +39,7 @@ public class CorvinaConfig {
 	public static final String LAYER_23 = "Layer 2/3";
 	public static final String LAYER_4 = "Layer 4";
 	public static final String LAYER_1 = "Layer 1";
+	public static final String LAYER_5 = "Layer 5";
 	
 	private int[] dimensions = {64, 64};
 
@@ -48,7 +49,7 @@ public class CorvinaConfig {
 	 */
 	@Bean
 	public Network network() {
-		Network network = new Network(CORVINA, parameters23());
+		Network network = new Network(CORVINA, networkParameters());
 		network.add(region1(network));
 		
 		// network.add(region2(network))
@@ -72,7 +73,11 @@ public class CorvinaConfig {
 		.add(Network.createLayer(LAYER_4, parameters4())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
-		.connect(LAYER_4, LAYER_23);
+		.add(Network.createLayer(LAYER_5, parameters5())
+				.add(new TemporalMemory())
+				.add(new LowMemorySpatialPooler()))
+		.connect(LAYER_4, LAYER_23)
+		.connect(LAYER_5, LAYER_4);
 		
 		return region;
 	}
@@ -88,6 +93,7 @@ public class CorvinaConfig {
 		imsv.setModel(imageSensor());
 		List<BufferedImageOp> available = new ArrayList<>();
 		available.add(new RotateImageOp());
+		available.add(new RandomSweepOp());
 		imsv.setAvailableFilters(available);
 		imsv.refresh();
 		
@@ -102,13 +108,25 @@ public class CorvinaConfig {
 		return sensorParams;
 	}
 
+	@Bean
+	public Parameters networkParameters() {
+		Parameters p =  Parameters.getAllDefaultParameters();
+		p.setColumnDimensions(dimensions);
+		p.setInputDimensions(dimensions);
+
+		return p;
+	}
 
 	@Bean
 	public Parameters parameters23() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {8, 8});
+		p.setColumnDimensions(dimensions);
 		p.setInputDimensions(dimensions);
-		p.setCellsPerColumn(16);
+		p.setCellsPerColumn(32);
+		p.setSynPermTrimThreshold(0.1d);
+		p.setPotentialRadius(2);
+		p.setPotentialPct(0.5d);
+	
 
 		return p;
 	}
@@ -116,14 +134,28 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters4() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(this.dimensions);
+		p.setColumnDimensions(new int[] {32, 32});
 		p.setInputDimensions(this.dimensions);
 		p.setCellsPerColumn(16);
-		p.setLearningRadius(4);
-		p.setPotentialRadius(4);
+		p.setPotentialRadius(8);
+		p.setSynPermTrimThreshold(0.1d);
+	
 		
 		return p;
 	}
+	
+	@Bean
+	public Parameters parameters5() {
+		Parameters p =  Parameters.getAllDefaultParameters();
+		p.setColumnDimensions(new int[] {16, 16});
+		p.setInputDimensions(new int[] {32, 32});
+		p.setCellsPerColumn(8);
+		p.setPotentialRadius(4);
+		p.setSynPermTrimThreshold(0.1d);
+		
+		return p;
+	}
+
 
 	public List<Layer<?>> layers() {
 		ArrayList<Layer<?>> layers = new ArrayList<>();

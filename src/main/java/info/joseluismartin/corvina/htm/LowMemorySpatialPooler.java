@@ -41,8 +41,8 @@ public class LowMemorySpatialPooler extends SpatialPooler {
         SparseBinaryMatrixSupport connected = 
         		new LowMemorySparseBinaryMatrix(new int[] { numColumns, numInputs });
         
-        for (int i = 0; i < numColumns; i++)
-        		connected.set(1, i, i);
+//        for (int i = 0; i < numColumns; i++)
+//        		connected.set(1, i, i);
         
         c.setConnectedMatrix(connected);
         

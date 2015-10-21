@@ -12,7 +12,6 @@ public class LogSubscriber<T> extends Subscriber<T> {
 	@Override
 	public void onCompleted() {
 		log.info("COMPLETED");
-		
 	}
 
 	@Override

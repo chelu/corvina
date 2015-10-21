@@ -62,7 +62,6 @@ public class ImageSensor {
 			source = ImageIO.read(new File(path));
 		} 
 		catch (IOException e) {
-			log.error(e);
 			return;
 		}
 		
@@ -144,6 +143,9 @@ public class ImageSensor {
 	 * @return dense in input representation of image data.
 	 */
 	public synchronized int[] getAsDense() {
+		
+		if (this.image == null)
+			return new int[0];
 	
 		this.image = applyDinamycFilters(this.dinamycFilters); 
 		
