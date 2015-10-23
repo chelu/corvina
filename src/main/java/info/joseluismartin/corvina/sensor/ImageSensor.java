@@ -45,6 +45,7 @@ public class ImageSensor {
 	private BufferedImage original;
 	private ValueList valueList;
 	private SensorParams params;
+	private String imageName;
 
 	
 	public ImageSensor(String path) {
@@ -58,12 +59,15 @@ public class ImageSensor {
 	 */
 	public void loadImage(String path) {
 		BufferedImage source = null;
+		File file = new File(path);
 		try {
-			source = ImageIO.read(new File(path));
+			source = ImageIO.read(file);
 		} 
 		catch (IOException e) {
 			return;
 		}
+		// have a image
+		this.imageName = file.getName();
 		
 		for (ImageFilter filter : filters) {
 			source = applyFilter(source, filter);
@@ -223,6 +227,20 @@ public class ImageSensor {
 	 */
 	public synchronized void setDinamycFilters(List<BufferedImageOp> dinamycFilters) {
 			this.dinamycFilters = dinamycFilters;
+	}
+	
+	/**
+	 * @return the imageName
+	 */
+	public String getImageName() {
+		return imageName;
+	}
+
+	/**
+	 * @param imageName the imageName to set
+	 */
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
 	}
 
 }

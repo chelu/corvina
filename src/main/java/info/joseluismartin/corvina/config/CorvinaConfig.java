@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import info.joseluismartin.corvina.Corvina;
+import info.joseluismartin.corvina.htm.CorvinaClassifier;
 import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
 import info.joseluismartin.corvina.image.RandomSweepOp;
 import info.joseluismartin.corvina.image.RotateImageOp;
@@ -23,6 +24,7 @@ import info.joseluismartin.corvina.ui.ImageSensorView;
 import info.joseluismartin.corvina.ui.LayerView;
 import info.joseluismartin.corvina.ui.MainFrame;
 import info.joseluismartin.corvina.ui.NetworkView;
+import rx.observables.ConnectableObservable;
 
 /**
  * Configuration class for corvina project.
@@ -40,6 +42,7 @@ public class CorvinaConfig {
 	public static final String LAYER_4 = "Layer 4";
 	public static final String LAYER_1 = "Layer 1";
 	public static final String LAYER_5 = "Layer 5";
+	public static final String LAYER_6 = "Layer 6";
 	
 	private int[] dimensions = {64, 64};
 
@@ -69,16 +72,20 @@ public class CorvinaConfig {
 		region.add(Network.createLayer(LAYER_23, parameters23())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
-		
+		//*
 		.add(Network.createLayer(LAYER_4, parameters4())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
 		.add(Network.createLayer(LAYER_5, parameters5())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
+		.add(Network.createLayer(LAYER_6, parameters6())
+				.add(new TemporalMemory())
+				.add(new LowMemorySpatialPooler()))
 		.connect(LAYER_4, LAYER_23)
-		.connect(LAYER_5, LAYER_4);
-		
+		.connect(LAYER_5, LAYER_4)
+		.connect(LAYER_6, LAYER_5);
+		//*/
 		return region;
 	}
 
@@ -122,10 +129,10 @@ public class CorvinaConfig {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(dimensions);
 		p.setInputDimensions(dimensions);
-		p.setCellsPerColumn(32);
+		p.setCellsPerColumn(16);
 		p.setSynPermTrimThreshold(0.1d);
 		p.setPotentialRadius(2);
-		p.setPotentialPct(0.5d);
+		p.setPotentialPct(1);
 	
 
 		return p;
@@ -134,10 +141,10 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters4() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {32, 32});
+		p.setColumnDimensions(new int[] {48, 48});
 		p.setInputDimensions(this.dimensions);
 		p.setCellsPerColumn(16);
-		p.setPotentialRadius(8);
+		p.setPotentialRadius(4);
 		p.setSynPermTrimThreshold(0.1d);
 	
 		
@@ -147,10 +154,22 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters5() {
 		Parameters p =  Parameters.getAllDefaultParameters();
+		p.setColumnDimensions(new int[] {32, 32});
+		p.setInputDimensions(new int[] {48, 48});
+		p.setCellsPerColumn(8);
+		p.setPotentialRadius(8);
+		p.setSynPermTrimThreshold(0.1d);
+		
+		return p;
+	}
+	
+	@Bean
+	public Parameters parameters6() {
+		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(new int[] {16, 16});
 		p.setInputDimensions(new int[] {32, 32});
 		p.setCellsPerColumn(8);
-		p.setPotentialRadius(4);
+		p.setPotentialRadius(8);
 		p.setSynPermTrimThreshold(0.1d);
 		
 		return p;

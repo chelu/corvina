@@ -3,6 +3,8 @@ package info.joseluismartin.corvina;
 
 import java.awt.EventQueue;
 import java.util.Arrays;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import info.joseluismartin.corvina.config.CorvinaConfig;
+import info.joseluismartin.corvina.htm.CorvinaClassifier;
 import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.MainFrame;
 import rx.Subscriber;
@@ -23,7 +26,7 @@ import rx.Subscriber;
  * @author Jose Luis Martin
  * @since 1.0
  */
-public class Corvina extends Subscriber<Inference> {
+public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	private static final Object LOCK = new Object();
 	private static Log log = LogFactory.getLog(Corvina.class);
@@ -34,12 +37,15 @@ public class Corvina extends Subscriber<Inference> {
 	private MainFrame mainFrame;
 	@Autowired 
 	private ImageSensor imageSensor;
-
-
-	private volatile boolean running = true;
+	private CorvinaClassifier classifier = new CorvinaClassifier();
+	private volatile int step;
+	private volatile boolean running;
+	private Executor executor = Executors.newSingleThreadExecutor();
+	private volatile boolean infer;
 
 	public static void main(String[] args) {
 		log.info("Starting corvina...");
+		
 		ApplicationContextGuiFactory.setPlasticLookAndFeel();
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
 
@@ -57,8 +63,6 @@ public class Corvina extends Subscriber<Inference> {
 			}
 		});
 
-		corvina.run();
-
 		// wait for ever...
 		synchronized (LOCK) {
 			try {
@@ -70,15 +74,25 @@ public class Corvina extends Subscriber<Inference> {
 
 		ctx.close();
 	}
+	
+	public void start() {
+		this.running = true;
+		executor.execute(this);
+	}
+	
+	public void stop() {
+		this.running = false;
+	}
 
+	@Override
 	public void run() {
-
 		while (this.running) {
 			this.mainFrame.refresh();
 			int[] input = this.imageSensor.getAsDense();
 			long millis = System.currentTimeMillis();
 			this.network.compute(input);
 			log.info((double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
+			this.step++;
 		}
 	}
 
@@ -96,12 +110,35 @@ public class Corvina extends Subscriber<Inference> {
 
 	public void onStart() {
 		log.info("On Start");
+		
 	}
 
 	@Override
 	public void onNext(Inference t) {
 		log.info("On Next");
-		log.info(Arrays.toString(t.getSparseActives()));
+		log.info("Sparse Actives: " + Arrays.toString(t.getSparseActives()));
+		log.info("SDR: " + Arrays.toString(t.getSDR()));
+
+		this.classifier.compute(t.getSDR(),this.imageSensor.getImageName(), true);
 	}
+
+	public boolean isRunning() {
+		return this.running;
+	}
+	
+	/**
+	 * @return the infer
+	 */
+	public boolean isInfer() {
+		return infer;
+	}
+
+	/**
+	 * @param infer the infer to set
+	 */
+	public void setInfer(boolean infer) {
+		this.infer = infer;
+	}
+
 
 }

@@ -25,7 +25,6 @@ public class LayerView extends AbstractView<Layer<?>> {
 		super(layer);
 	}
 	
-	
 	@Override
 	protected JComponent buildPanel() {
 		JPanel panel =  new MatrixPanel();
