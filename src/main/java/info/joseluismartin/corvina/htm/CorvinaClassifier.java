@@ -26,9 +26,6 @@ public class CorvinaClassifier {
 	double threshold = 0.1d;
 	
 	public String compute(int[] values, String name, boolean infer) {
-		if (infer)
-			return infer(values);
-		
 		if (values.length == 0)
 			return null;
 		
@@ -58,6 +55,9 @@ public class CorvinaClassifier {
 			log.info("Seeing: " + name);
 			return name;
 		}
+		
+		if (infer)
+			return infer(values);
 		
 		return null;
 	}

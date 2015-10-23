@@ -119,7 +119,10 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		log.info("Sparse Actives: " + Arrays.toString(t.getSparseActives()));
 		log.info("SDR: " + Arrays.toString(t.getSDR()));
 
-		this.classifier.compute(t.getSDR(),this.imageSensor.getImageName(), true);
+		String infered = this.classifier.compute(t.getSDR(),this.imageSensor.getImageName(), infer);
+		
+		if (infered != null)
+			log.info("Seeing :" + infered);
 	}
 
 	public boolean isRunning() {
