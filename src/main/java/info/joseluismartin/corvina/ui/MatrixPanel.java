@@ -26,7 +26,7 @@ public class MatrixPanel extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (values == null)
+		if (this.values == null)
 			return;
 		
 		Graphics2D g2 = (Graphics2D) g;

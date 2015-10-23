@@ -29,11 +29,11 @@ public class NetworkView extends AbstractView<Network> {
 
 	@Autowired
 	private LayerView layerView;
-	private JComboBox<Layer<?>> layerCombo;
+	private JComboBox<LayerHolder> layerCombo;
 	
 	@PostConstruct
 	public void init() {
-		this.layerCombo = new JComboBox<Layer<?>>(getLayers().toArray(new Layer<?>[] {}));
+		this.layerCombo = new JComboBox<LayerHolder>();
 		this.layerCombo.addActionListener(e -> updateLayer());
 	}
 	
@@ -65,11 +65,11 @@ public class NetworkView extends AbstractView<Network> {
 		if (model == null)
 			return;
 		
-		MutableComboBoxModel<Layer<?>> comboModel = 
-				(MutableComboBoxModel<Layer<?>>) this.layerCombo.getModel();
+		MutableComboBoxModel<LayerHolder> comboModel = 
+				(MutableComboBoxModel<LayerHolder>) this.layerCombo.getModel();
 		if (comboModel.getSize() == 0) {
 			for (Layer<?> l : getLayers())
-				comboModel.addElement(l);
+				comboModel.addElement(new LayerHolder(l));
 		}
 		
 		this.layerView.refresh();
@@ -89,8 +89,24 @@ public class NetworkView extends AbstractView<Network> {
 	}
 	
 	private void updateLayer() {
-		this.layerView.setModel((Layer<?>) this.layerCombo.getSelectedItem());
+		this.layerView.setModel((Layer<?>) 
+				((LayerHolder) this.layerCombo.getSelectedItem()).getLayer());
 	}
-
-
 }
+
+class LayerHolder {
+	private Layer<?> layer;
+	
+	public LayerHolder(Layer<?> layer) {
+		this.layer = layer;
+	}
+	
+	public Layer<?> getLayer() {
+		return this.layer;
+	}
+	
+	public String toString() {
+		return this.layer.getName();
+	}
+}
+

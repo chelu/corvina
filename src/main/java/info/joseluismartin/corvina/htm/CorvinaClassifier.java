@@ -21,11 +21,16 @@ import org.springframework.util.ObjectUtils;
 public class CorvinaClassifier {
 
 	private static final Log log = LogFactory.getLog(CorvinaClassifier.class);
-	MultiValueMap<String, Object> outputs = new LinkedMultiValueMap<>();
+	private MultiValueMap<String, Object> outputs = new LinkedMultiValueMap<>();
 	private int historyLenght = 10;
-	double threshold = 0.1d;
+	private double threshold = 0.1d;
+	private int steps;
+	private int hits;
 	
 	public String compute(int[] values, String name, boolean infer) {
+		if (infer)
+			return infer(name, values);
+		
 		if (values.length == 0)
 			return null;
 		
@@ -56,18 +61,22 @@ public class CorvinaClassifier {
 			return name;
 		}
 		
-		if (infer)
-			return infer(values);
-		
 		return null;
 	}
 	
-	public String infer(int[] values) {
+	public String infer(String realName, int[] values) {
+		this.steps++;
+		
 		for (String name : this.outputs.keySet()) {
 			List<Object> records = this.outputs.get(name);
 			for (Object record : records) {
-				if (match(values, (int[]) record))
+				if (match(values, (int[]) record) && name.equals(realName)) {
+					this.hits++;
 					return name;
+				}
+				else {
+					log.warn("Bad Hit: [" + name + "]");
+				}
 			}
 		}
 		
@@ -98,6 +107,10 @@ public class CorvinaClassifier {
 			array[i++] = (Integer) o;
 		
 		return array;
+	}
+	
+	public String getStatsString() {
+		return "Steps: " + this.steps + " Hits: " + this.hits + " (" + (double) this.hits / this.steps * 100 + " %)";
 	}
 
 }

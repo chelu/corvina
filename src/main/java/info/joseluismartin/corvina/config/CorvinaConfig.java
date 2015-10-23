@@ -108,14 +108,6 @@ public class CorvinaConfig {
 	}
 
 	@Bean
-	public SensorParams sensorParams() {
-		SensorParams sensorParams = SensorParams.create(
-				new String[] {"PATH"}, "/home/chelu/workspaces/htm/corvina/src/main/resources/images/test.png");
-		
-		return sensorParams;
-	}
-
-	@Bean
 	public Parameters networkParameters() {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(dimensions);
@@ -131,8 +123,8 @@ public class CorvinaConfig {
 		p.setInputDimensions(dimensions);
 		p.setCellsPerColumn(16);
 		p.setSynPermTrimThreshold(0.1d);
-		p.setPotentialRadius(2);
-		p.setPotentialPct(1);
+		p.setPotentialRadius(3);
+		p.setPotentialPct(0.8);
 	
 
 		return p;

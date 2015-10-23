@@ -2,9 +2,12 @@ package info.joseluismartin.corvina;
 
 
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +41,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	@Autowired 
 	private ImageSensor imageSensor;
 	private CorvinaClassifier classifier = new CorvinaClassifier();
+	private CorvinaClassifier sparseClassifier = new CorvinaClassifier();
 	private volatile int step;
 	private volatile boolean running;
 	private Executor executor = Executors.newSingleThreadExecutor();
@@ -123,6 +127,23 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		
 		if (infered != null)
 			log.info("Seeing :" + infered);
+		
+		String sparseInfered = this.sparseClassifier.compute(t.getSparseActives(),this.imageSensor.getImageName(), this.infer);
+		
+		if (sparseInfered != null)
+			log.info("Sparse Seeing :" + sparseInfered);
+		
+		if (this.infer) {
+			log.info("Stats: " + this.classifier.getStatsString());
+			log.info("Sparse stats: " + this.sparseClassifier.getStatsString());
+		}
+		
+		try {
+			SwingUtilities.invokeAndWait(() -> this.mainFrame.setHit(infered));
+		} 
+		catch (Exception e) {
+			log.error(e);
+		}
 	}
 
 	public boolean isRunning() {
