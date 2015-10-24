@@ -123,8 +123,8 @@ public class CorvinaConfig {
 		p.setInputDimensions(dimensions);
 		p.setCellsPerColumn(16);
 		p.setSynPermTrimThreshold(0.1d);
-		p.setPotentialRadius(3);
-		p.setPotentialPct(0.8);
+		p.setPotentialRadius(2);
+		p.setPotentialPct(1);
 	
 
 		return p;
@@ -149,7 +149,7 @@ public class CorvinaConfig {
 		p.setColumnDimensions(new int[] {32, 32});
 		p.setInputDimensions(new int[] {48, 48});
 		p.setCellsPerColumn(8);
-		p.setPotentialRadius(8);
+		p.setPotentialRadius(4);
 		p.setSynPermTrimThreshold(0.1d);
 		
 		return p;
@@ -161,7 +161,7 @@ public class CorvinaConfig {
 		p.setColumnDimensions(new int[] {16, 16});
 		p.setInputDimensions(new int[] {32, 32});
 		p.setCellsPerColumn(8);
-		p.setPotentialRadius(8);
+		p.setPotentialRadius(2);
 		p.setSynPermTrimThreshold(0.1d);
 		
 		return p;
