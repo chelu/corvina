@@ -74,7 +74,7 @@ public class CorvinaClassifier {
 					this.hits++;
 					return name;
 				}
-				else {
+				else if (!name.equals(realName)) {
 					log.warn("Bad Hit: [" + name + "]");
 				}
 			}
