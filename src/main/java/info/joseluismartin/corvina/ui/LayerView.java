@@ -12,6 +12,8 @@ import javax.swing.JSplitPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdal.swing.AbstractView;
 import org.jdal.swing.form.BoxFormBuilder;
 import org.jdal.swing.form.FormUtils;
@@ -27,6 +29,8 @@ import org.numenta.nupic.util.ArrayUtils;
  */
 public class LayerView extends AbstractView<Layer<?>> implements ChangeListener {
 	
+	private static Log log = LogFactory.getLog(LayerView.class);
+	
 	private MatrixPanel spatial = new MatrixPanel();
 	private MatrixPanel temporal = new MatrixPanel();
 	private JSlider potentialRadius = new JSlider();
@@ -35,6 +39,7 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	private JCheckBox globalInhibition = new JCheckBox();
 	private JSlider permanenceDecrement = new JSlider();
 	private JSlider permanenceIncrement = new JSlider();
+	private JSlider synPermConnected = new JSlider();
 	private boolean disabledListeners;
 	
 	public LayerView() {
@@ -51,6 +56,7 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		JPanel panel = new JPanel(new BorderLayout());
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, spatialScroll, temporalScroll);
 		split.setDividerLocation(0.5);
+		split.setResizeWeight(0.5);
 		panel.add(split, BorderLayout.CENTER);
 		
 		panel.add(createFormPanel(), BorderLayout.PAGE_START);
@@ -133,10 +139,13 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 			model.getConnections().setLocalAreaDensity(toPercent(this.localAreaDensity.getValue()));
 		}
 		else if (source == this.permanenceDecrement) {
-			model.getConnections().setLocalAreaDensity(toPercent(this.permanenceDecrement.getValue()));
+			model.getConnections().setPermanenceDecrement(toPercent(this.permanenceDecrement.getValue()));
 		}
 		else if (source == this.permanenceIncrement) {
-			model.getConnections().setLocalAreaDensity(toPercent(this.permanenceIncrement.getValue()));
+			model.getConnections().setPermanenceIncrement(toPercent(this.permanenceIncrement.getValue()));
+		}
+		else if (source == this.synPermConnected) {
+			model.getConnections().setSynPermConnected(toPercent(this.permanenceIncrement.getValue()));
 		}
 		
 	}
@@ -159,12 +168,18 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		this.synPermTrimTreshold.setValue(fromPercent(c.getSynPermTrimThreshold()));
 		this.permanenceDecrement.setValue(fromPercent(c.getPermanenceDecrement()));
 		this.permanenceIncrement.setValue(fromPercent(c.getPermanenceIncrement()));
+		this.synPermConnected.setValue(fromPercent(c.getSynPermConnected()));
 		this.globalInhibition.setSelected(c.getGlobalInhibition());
+		
+		
 		this.localAreaDensity.setValue(fromPercent(c.getLocalAreaDensity()));
 	}
 
 	private int fromPercent(double value) {
-		return (int) value * 100;
+		int full =  (int) value * 100;
+		log.debug("value: [" + full + "]");
+		
+		return full;
  	}
 	
 	private double toPercent(int value) {

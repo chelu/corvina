@@ -71,7 +71,7 @@ public class MainFrame extends JFrame {
 		// Logger.getRootLogger().addAppender(new TextAreaAppender(area));
 		JScrollPane scroll = new JScrollPane(area);
 		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.tab, scroll);
-		split.setDividerLocation(-1);
+		split.setDividerLocation(0.75d);
 		getContentPane().add(split, BorderLayout.CENTER);
 		setSize(new Dimension(1024, 768));
 		setExtendedState(JFrame.MAXIMIZED_BOTH);

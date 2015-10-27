@@ -41,25 +41,15 @@ public class CorvinaClassifier {
 		
 		List<Object> history = this.outputs.get(name);
 		
-		if (history.size() < historyLenght) {
-			this.outputs.add(name, values);
-		
-			return null;
+		if (match(values, history)) {
+		    // already have this pattern
+		    return name;
 		}
 		
 		history.add(0, values);
-		history.remove(historyLenght);
-		int[] diff = difference((int[]) history.get(1), values);
 		
-		if (log.isDebugEnabled())
-			log.debug("Difference: " + Arrays.toString(diff));
-		
-		double d = (double) diff.length / values.length; 
-		
-		if (d <= this.threshold) {
-			log.info("Seeing: " + name);
-			return name;
-		}
+		if (history.size() > this.historyLenght)
+			history.remove(this.historyLenght);
 		
 		return null;
 	}
@@ -90,6 +80,14 @@ public class CorvinaClassifier {
 		double d = (double) diff.length / values.length; 
 		
 		return d <= this.threshold;
+	}
+	
+	private boolean match(int[] values, List<Object> recordList) {
+	    for (Object record : recordList)
+	        if (match(values, (int[]) record))
+	            return true;
+	    
+	    return false;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

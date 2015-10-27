@@ -124,8 +124,8 @@ public class CorvinaConfig {
 		p.setColumnDimensions(dimensions);
 		p.setInputDimensions(dimensions);
 		configureParamters(p);
-		p.setPotentialRadius(8);
-		p.setLocalAreaDensity(0.2d);
+		p.setPotentialRadius(2);
+		p.setLocalAreaDensity(0.1d);
 
 		return p;
 	}
@@ -154,9 +154,11 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters5() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {32, 32});
+		p.setColumnDimensions(new int[] {16, 16});
 		p.setInputDimensions(new int[] {48, 48});
 		configureParamters(p);
+		p.setLocalAreaDensity(0.05);
+		p.setPotentialRadius(100);
 		
 		return p;
 	}
