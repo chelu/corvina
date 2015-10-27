@@ -128,14 +128,14 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		if (infered != null)
 			log.info("Seeing :" + infered);
 		
-		String sparseInfered = this.sparseClassifier.compute(t.getSparseActives(),this.imageSensor.getImageName(), this.infer);
-		
-		if (sparseInfered != null)
-			log.info("Sparse Seeing :" + sparseInfered);
-		
+//		String sparseInfered = this.sparseClassifier.compute(t.getSparseActives(),this.imageSensor.getImageName(), this.infer);
+//		
+//		if (sparseInfered != null)
+//			log.info("Sparse Seeing :" + sparseInfered);
+//		
 		if (this.infer) {
-			log.info("Stats: " + this.classifier.getStatsString());
-			log.info("Sparse stats: " + this.sparseClassifier.getStatsString());
+			log.info("Stats: " + this.classifier.getStatsString());//
+//			log.info("Sparse stats: " + this.sparseClassifier.getStatsString());
 		}
 		
 		try {

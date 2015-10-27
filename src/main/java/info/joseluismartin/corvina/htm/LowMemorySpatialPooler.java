@@ -6,8 +6,8 @@ import org.numenta.nupic.Connections;
 import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.model.Column;
 import org.numenta.nupic.model.Pool;
+import org.numenta.nupic.util.FastConnectionsMatrix;
 import org.numenta.nupic.util.FlatArrayMatrix;
-import org.numenta.nupic.util.LowMemorySparseBinaryMatrix;
 import org.numenta.nupic.util.SparseBinaryMatrix;
 import org.numenta.nupic.util.SparseBinaryMatrixSupport;
 import org.numenta.nupic.util.SparseObjectMatrix;
@@ -39,7 +39,7 @@ public class LowMemorySpatialPooler extends SpatialPooler {
         
         c.setPotentialPools(new FlatArrayMatrix<Pool>(c.getMemory().getDimensions()));
         SparseBinaryMatrixSupport connected = 
-        		new LowMemorySparseBinaryMatrix(new int[] { numColumns, numInputs });
+        		new FastConnectionsMatrix(new int[] { numColumns, numInputs });
         
 //        for (int i = 0; i < numColumns; i++)
 //        		connected.set(1, i, i);

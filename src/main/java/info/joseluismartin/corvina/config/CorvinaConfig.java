@@ -9,13 +9,11 @@ import org.numenta.nupic.algorithms.TemporalMemory;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
-import org.numenta.nupic.network.sensor.SensorParams;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import info.joseluismartin.corvina.Corvina;
-import info.joseluismartin.corvina.htm.CorvinaClassifier;
 import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
 import info.joseluismartin.corvina.image.RandomSweepOp;
 import info.joseluismartin.corvina.image.RotateImageOp;
@@ -24,7 +22,6 @@ import info.joseluismartin.corvina.ui.ImageSensorView;
 import info.joseluismartin.corvina.ui.LayerView;
 import info.joseluismartin.corvina.ui.MainFrame;
 import info.joseluismartin.corvina.ui.NetworkView;
-import rx.observables.ConnectableObservable;
 
 /**
  * Configuration class for corvina project.
@@ -43,6 +40,7 @@ public class CorvinaConfig {
 	public static final String LAYER_1 = "Layer 1";
 	public static final String LAYER_5 = "Layer 5";
 	public static final String LAYER_6 = "Layer 6";
+	public static final String LAYER_7 = "Layer 7";
 	
 	private int[] dimensions = {64, 64};
 
@@ -72,20 +70,24 @@ public class CorvinaConfig {
 		region.add(Network.createLayer(LAYER_23, parameters23())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
-		//*
 		.add(Network.createLayer(LAYER_4, parameters4())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
 		.add(Network.createLayer(LAYER_5, parameters5())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
-		.add(Network.createLayer(LAYER_6, parameters6())
-				.add(new TemporalMemory())
-				.add(new LowMemorySpatialPooler()))
-		.connect(LAYER_4, LAYER_23)
-		.connect(LAYER_5, LAYER_4)
-		.connect(LAYER_6, LAYER_5);
+//		.add(Network.createLayer(LAYER_6, parameters6())
+//				.add(new TemporalMemory())
+//				.add(new LowMemorySpatialPooler()))
+//		.add(Network.createLayer(LAYER_7, parameters7())
+//				.add(new TemporalMemory())
+//				.add(new LowMemorySpatialPooler()))
 		//*/
+		.connect(LAYER_4, LAYER_23)
+		.connect(LAYER_5, LAYER_4);
+//		.connect(LAYER_6, LAYER_5);
+//		.connect(LAYER_7, LAYER_5);
+		
 		return region;
 	}
 
@@ -121,13 +123,22 @@ public class CorvinaConfig {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(dimensions);
 		p.setInputDimensions(dimensions);
-		p.setCellsPerColumn(16);
-		p.setSynPermTrimThreshold(0.1d);
-		p.setPotentialRadius(2);
-		p.setPotentialPct(1);
-	
+		configureParamters(p);
+		p.setPotentialRadius(8);
+		p.setLocalAreaDensity(0.2d);
 
 		return p;
+	}
+	
+	private void configureParamters(Parameters p) {
+		p.setCellsPerColumn(32);
+		p.setPotentialRadius(4);
+		p.setSynPermTrimThreshold(0.1d);
+		p.setLocalAreaDensity(0.1d);
+		p.setGlobalInhibition(true);
+		p.setPermanenceDecrement(0.1);
+		p.setPermanenceIncrement(0.1);
+		
 	}
 	
 	@Bean
@@ -135,10 +146,7 @@ public class CorvinaConfig {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(new int[] {48, 48});
 		p.setInputDimensions(this.dimensions);
-		p.setCellsPerColumn(16);
-		p.setPotentialRadius(4);
-		p.setSynPermTrimThreshold(0.1d);
-	
+		configureParamters(p);
 		
 		return p;
 	}
@@ -148,9 +156,7 @@ public class CorvinaConfig {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(new int[] {32, 32});
 		p.setInputDimensions(new int[] {48, 48});
-		p.setCellsPerColumn(8);
-		p.setPotentialRadius(4);
-		p.setSynPermTrimThreshold(0.1d);
+		configureParamters(p);
 		
 		return p;
 	}
@@ -160,12 +166,22 @@ public class CorvinaConfig {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(new int[] {16, 16});
 		p.setInputDimensions(new int[] {32, 32});
-		p.setCellsPerColumn(8);
-		p.setPotentialRadius(2);
-		p.setSynPermTrimThreshold(0.1d);
+		configureParamters(p);
+		p.setPotentialRadius(8);
 		
 		return p;
 	}
+	
+	@Bean
+	public Parameters parameters7() {
+		Parameters p =  Parameters.getAllDefaultParameters();
+		p.setColumnDimensions(new int[] {8, 8});
+		p.setInputDimensions(new int[] {16, 16});
+		configureParamters(p);
+		
+		return p;
+	}
+
 
 
 	public List<Layer<?>> layers() {

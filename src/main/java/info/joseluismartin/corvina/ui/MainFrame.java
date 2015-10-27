@@ -68,7 +68,7 @@ public class MainFrame extends JFrame {
 		this.tab.add(NETWORK, this.networkView.getPanel());
 		JTextArea area = new JTextArea();
 		area.setRows(10);
-		Logger.getRootLogger().addAppender(new TextAreaAppender(area));
+		// Logger.getRootLogger().addAppender(new TextAreaAppender(area));
 		JScrollPane scroll = new JScrollPane(area);
 		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.tab, scroll);
 		split.setDividerLocation(-1);

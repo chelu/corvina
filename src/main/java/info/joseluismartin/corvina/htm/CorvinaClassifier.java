@@ -23,7 +23,7 @@ public class CorvinaClassifier {
 	private static final Log log = LogFactory.getLog(CorvinaClassifier.class);
 	private MultiValueMap<String, Object> outputs = new LinkedMultiValueMap<>();
 	private int historyLenght = 10;
-	private double threshold = 0.1d;
+	private double threshold = 0.05d;
 	private int steps;
 	private int hits;
 	
@@ -56,7 +56,7 @@ public class CorvinaClassifier {
 		
 		double d = (double) diff.length / values.length; 
 		
-		if (d < this.threshold) {
+		if (d <= this.threshold) {
 			log.info("Seeing: " + name);
 			return name;
 		}
@@ -70,12 +70,14 @@ public class CorvinaClassifier {
 		for (String name : this.outputs.keySet()) {
 			List<Object> records = this.outputs.get(name);
 			for (Object record : records) {
-				if (match(values, (int[]) record) && name.equals(realName)) {
-					this.hits++;
-					return name;
-				}
-				else if (!name.equals(realName)) {
-					log.warn("Bad Hit: [" + name + "]");
+				if (match(values, (int[]) record)) {
+					if (name.equals(realName)) {
+						this.hits++;
+						return name;
+					}
+					else {
+						log.warn("Bad Hit: [" + name + "]");
+					}
 				}
 			}
 		}
@@ -87,7 +89,7 @@ public class CorvinaClassifier {
 		int[] diff = difference(values, record);
 		double d = (double) diff.length / values.length; 
 		
-		return d < this.threshold;
+		return d <= this.threshold;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
