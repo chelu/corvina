@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Lazy;
 
 import info.joseluismartin.corvina.Corvina;
 import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
+import info.joseluismartin.corvina.image.ConstantHorizontalTraslation;
+import info.joseluismartin.corvina.image.ConstantVerticalTranslation;
 import info.joseluismartin.corvina.image.RandomSweepOp;
 import info.joseluismartin.corvina.image.RotateImageOp;
 import info.joseluismartin.corvina.sensor.ImageSensor;
@@ -103,6 +105,8 @@ public class CorvinaConfig {
 		List<BufferedImageOp> available = new ArrayList<>();
 		available.add(new RotateImageOp());
 		available.add(new RandomSweepOp());
+		available.add(new ConstantHorizontalTraslation());
+		available.add(new ConstantVerticalTranslation());
 		imsv.setAvailableFilters(available);
 		imsv.refresh();
 		
@@ -113,7 +117,7 @@ public class CorvinaConfig {
 	public Parameters networkParameters() {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(dimensions);
-		p.setInputDimensions(dimensions);
+		p.setInputDimensions(new int[] {64, 64});
 
 		return p;
 	}
@@ -122,23 +126,26 @@ public class CorvinaConfig {
 	public Parameters parameters23() {
 		Parameters p =  Parameters.getAllDefaultParameters();
 		p.setColumnDimensions(dimensions);
-		p.setInputDimensions(dimensions);
+		p.setInputDimensions(new int[] {64, 64});
 		configureParamters(p);
-		p.setPotentialRadius(2);
-		p.setLocalAreaDensity(0.1d);
+		p.setLocalAreaDensity(0.2d);
+		p.setPotentialRadius(1);
+		p.setPotentialPct(1);
 
 		return p;
 	}
 	
 	private void configureParamters(Parameters p) {
-		p.setCellsPerColumn(32);
+		p.setCellsPerColumn(64);
 		p.setPotentialRadius(4);
 		p.setSynPermTrimThreshold(0.1d);
 		p.setLocalAreaDensity(0.1d);
 		p.setGlobalInhibition(true);
 		p.setPermanenceDecrement(0.1);
 		p.setPermanenceIncrement(0.1);
-		
+		p.setConnectedPermanence(0.4);
+		p.setPotentialPct(1);
+		p.setPotentialRadius(2);
 	}
 	
 	@Bean
@@ -157,8 +164,9 @@ public class CorvinaConfig {
 		p.setColumnDimensions(new int[] {16, 16});
 		p.setInputDimensions(new int[] {48, 48});
 		configureParamters(p);
+		p.setCellsPerColumn(128);
 		p.setLocalAreaDensity(0.05);
-		p.setPotentialRadius(100);
+		p.setPotentialRadius(4);
 		
 		return p;
 	}

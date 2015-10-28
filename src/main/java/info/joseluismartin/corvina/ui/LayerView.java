@@ -3,6 +3,7 @@ package info.joseluismartin.corvina.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 
+import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -29,7 +30,7 @@ import org.numenta.nupic.util.ArrayUtils;
  */
 public class LayerView extends AbstractView<Layer<?>> implements ChangeListener {
 	
-	private static Log log = LogFactory.getLog(LayerView.class);
+	// private static Log log = LogFactory.getLog(LayerView.class);
 	
 	private MatrixPanel spatial = new MatrixPanel();
 	private MatrixPanel temporal = new MatrixPanel();
@@ -40,6 +41,7 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	private JSlider permanenceDecrement = new JSlider();
 	private JSlider permanenceIncrement = new JSlider();
 	private JSlider synPermConnected = new JSlider();
+	private JSlider potentialPct = new JSlider();
 	private boolean disabledListeners;
 	
 	public LayerView() {
@@ -66,6 +68,8 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		configureSlider(this.localAreaDensity);
 		configureSlider(this.permanenceDecrement);
 		configureSlider(this.permanenceIncrement);
+		configureSlider(this.synPermConnected);
+		configureSlider(this.potentialPct);
 		
 		this.globalInhibition.addActionListener( e -> {
 			if (getModel() == null) 
@@ -81,10 +85,12 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		fb.add("Potential Radius", this.potentialRadius);
 		fb.add("SynPermTrimTreshold", this.synPermTrimTreshold);
 		fb.add("Local Area Density", this.localAreaDensity);
+		fb.add("Potential Ptc", this.potentialPct);
 		fb.row(50);
 		fb.add("Permanence Inc", this.permanenceIncrement);
 		fb.add("Permanence Dec", this.permanenceDecrement);
-		fb.add("Global Innibition", globalInhibition);
+		fb.add("SynPerm Connected", this.synPermConnected);
+		fb.add("Global Innibition", this.globalInhibition);
 		
 		return fb.getForm();
 	}
@@ -145,7 +151,10 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 			model.getConnections().setPermanenceIncrement(toPercent(this.permanenceIncrement.getValue()));
 		}
 		else if (source == this.synPermConnected) {
-			model.getConnections().setSynPermConnected(toPercent(this.permanenceIncrement.getValue()));
+			model.getConnections().setSynPermConnected(toPercent(this.synPermConnected.getValue()));
+		}
+		else if (source == this.potentialPct) {
+			model.getConnections().setPotentialPct(toPercent(this.potentialPct.getValue()));
 		}
 		
 	}
@@ -165,10 +174,12 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		Connections c = model.getConnections();
 		
 		this.potentialRadius.setValue(c.getPotentialRadius());
+		this.localAreaDensity.setValue(fromPercent(c.getLocalAreaDensity()));
 		this.synPermTrimTreshold.setValue(fromPercent(c.getSynPermTrimThreshold()));
 		this.permanenceDecrement.setValue(fromPercent(c.getPermanenceDecrement()));
 		this.permanenceIncrement.setValue(fromPercent(c.getPermanenceIncrement()));
 		this.synPermConnected.setValue(fromPercent(c.getSynPermConnected()));
+		this.potentialPct.setValue(fromPercent(c.getPotentialPct()));
 		this.globalInhibition.setSelected(c.getGlobalInhibition());
 		
 		
@@ -176,10 +187,7 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	}
 
 	private int fromPercent(double value) {
-		int full =  (int) value * 100;
-		log.debug("value: [" + full + "]");
-		
-		return full;
+		return (int) (value * 100);
  	}
 	
 	private double toPercent(int value) {

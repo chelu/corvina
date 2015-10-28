@@ -57,22 +57,26 @@ public class CorvinaClassifier {
 	public String infer(String realName, int[] values) {
 		this.steps++;
 		
+		StringBuffer sb = new StringBuffer();
+		
 		for (String name : this.outputs.keySet()) {
 			List<Object> records = this.outputs.get(name);
 			for (Object record : records) {
 				if (match(values, (int[]) record)) {
 					if (name.equals(realName)) {
 						this.hits++;
-						return name;
+						
 					}
 					else {
 						log.warn("Bad Hit: [" + name + "]");
 					}
+					sb.append(name).append(" ");
+					break;
 				}
 			}
 		}
 		
-		return null;
+		return sb.length() > 0 ? sb.toString() : null;
 	}
 	
 	private boolean match(int[] values, int[] record) {
