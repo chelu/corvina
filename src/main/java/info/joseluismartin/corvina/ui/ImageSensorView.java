@@ -1,31 +1,41 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageFilter;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 import org.jdal.swing.AbstractView;
 import org.jdal.swing.Selector;
 import org.jdal.swing.TitledSeparator;
+import org.jdal.swing.action.EditorSaveAction;
 import org.jdal.swing.form.BoxFormBuilder;
 import org.jdal.swing.form.FormUtils;
 import org.jdal.swing.form.SimpleBoxFormBuilder;
 
 import info.joseluismartin.corvina.sensor.ImageSensor;
+import info.joseluismartin.corvina.sensor.ImageSensorListener;
 
 /**
  * Swing viewer for {@link ImageSensor}.
@@ -33,15 +43,21 @@ import info.joseluismartin.corvina.sensor.ImageSensor;
  * @author Jose Luis Martin.
  * @since 1.0
  */
-public class ImageSensorView extends AbstractView<ImageSensor> {
+public class ImageSensorView extends AbstractView<ImageSensor> implements ImageSensorListener {
 	
 	private JLabel imageLabel = new JLabel() ;
 	private ImageIcon imageIcon = new ImageIcon();
 	private List<BufferedImageOp> availableFilters = new ArrayList<>();
 	private Selector<ImageFilter> filters;
 	private Selector<BufferedImageOp> dinamycFilters;
+	private JList<String> imagesToLoad = new JList<>();
+	private JTextField imageCicles = new JTextField();
+	private JButton saveButton = new JButton("Save");
+	private JCheckBox display = new JCheckBox("Paint");
+	private JLabel imageName = new JLabel();
+	
 	private Box leftPanel;
-	private Box northPanel;
+	private JComponent northPanel;
 	private JButton applyFilterButton;
 	private JButton chooserButton;
 	private File lastDirectory;
@@ -58,7 +74,11 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 		this.applyFilterButton.addActionListener(e -> update());
 		this.chooserButton = new JButton(getMessage("File"));
 		this.chooserButton.addActionListener(e -> chooseImageFile());
+		this.saveButton.addActionListener(e -> update());
+		this.saveButton.setAlignmentY(Component.LEFT_ALIGNMENT);
+		
 		autobind();
+		refresh();
 	}
 
 	@Override
@@ -73,6 +93,8 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 		panel.add(this.leftPanel, BorderLayout.EAST);
 		this.northPanel = createNorthPanel();
 		panel.add(this.northPanel, BorderLayout.NORTH);
+		panel.add(createWestPanel(), BorderLayout.WEST);
+		
 		return panel;
 	}
 
@@ -80,13 +102,41 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 * Create north panel for image selection.
 	 * @return a horizontal box.
 	 */
-	private Box createNorthPanel() {
-		Box box = Box.createHorizontalBox();
-		box.setBorder(FormUtils.createEmptyBorder(5));
-		box.add(this.chooserButton);
+	private JComponent createNorthPanel() {
+		BoxFormBuilder fb = new BoxFormBuilder(FormUtils.createEmptyBorder(5));
+		fb.row();
+		fb.add(this.display);
+		fb.add("Image: ", this.imageName);
 		
-		return box;
+		return fb.getForm();
 	}
+	
+	private JComponent createWestPanel() {
+		BoxFormBuilder fb = new BoxFormBuilder(BorderFactory.createCompoundBorder(
+				FormUtils.createEmptyBorder(5), FormUtils.createEmptyBorder(5)));
+		
+		//fb.setDebug(true);	
+		fb.row();
+		fb.add(new TitledSeparator("Load Files"));
+		fb.row();
+		fb.startBox();
+		fb.row();
+		fb.add(this.chooserButton);
+		fb.add(Box.createHorizontalGlue());
+		fb.endBox();
+		fb.row();
+		fb.row(SimpleBoxFormBuilder.SIZE_UNDEFINED);
+		fb.add(new JScrollPane(this.imagesToLoad));
+		fb.row();
+		fb.startBox();
+		fb.row();
+		fb.add(getMessage("imageCicles"), this.imageCicles);
+		fb.add(this.saveButton);
+		fb.endBox();
+		
+		return fb.getForm();
+	}
+	
 
 	/**
 	 * Create left panel with filter controls.
@@ -126,6 +176,9 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 * @param model
 	 */
 	public void refreshImage() {
+		if (!this.display.isSelected())
+			return;
+		
 		BufferedImage image = getModel().getImage();
 		
 		if (image == null)
@@ -140,18 +193,39 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 */
 	private void chooseImageFile() {
 		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(true);
+		
 		if (this.lastDirectory != null)
 			chooser.setCurrentDirectory(lastDirectory);
 			
 		if (chooser.showOpenDialog(getPanel()) == JFileChooser.APPROVE_OPTION) {
-			File file = chooser.getSelectedFile();
-			this.lastDirectory = file.getParentFile();
-			getModel().loadImage(file.getAbsolutePath());
+			File[] files = chooser.getSelectedFiles();
+			
+			if (files.length == 1) {
+				File file = files[0];
+				this.lastDirectory = file.getParentFile();
+				getModel().loadImage(file.getAbsolutePath());
+				getModel().setSingleImage(true);
+			}
+			else {
+				getModel().setImagesToLoad(Arrays.stream(files).<String>map(f -> f.getAbsolutePath())
+						.collect(Collectors.toList()));
+				
+				getModel().setSingleImage(false);
+			}
+			
 			refresh();
+		}
+		
+	}
+	
+	@Override
+	protected void onSetModel(ImageSensor model) {
+		if (model != null) {
+			model.addListener(this);
 		}
 	}
 
-	
 	/**
 	 * @return the availableFilters
 	 */
@@ -164,6 +238,18 @@ public class ImageSensorView extends AbstractView<ImageSensor> {
 	 */
 	public void setAvailableFilters(List<BufferedImageOp> availableFilters) {
 		this.availableFilters = availableFilters;
+	}
+
+	@Override
+	public void imageChanged() {
+		this.imageName.setText(getModel().getImageName());
+		
+	}
+
+	@Override
+	public void finished() {
+		// TODO Auto-generated method stub
+		
 	}
 
 

@@ -3,11 +3,13 @@ package info.joseluismartin.corvina.htm;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.numenta.nupic.util.ArrayUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
@@ -22,6 +24,8 @@ public class CorvinaClassifier {
 
 	private static final Log log = LogFactory.getLog(CorvinaClassifier.class);
 	private MultiValueMap<String, Object> outputs = new LinkedMultiValueMap<>();
+	private HashMap<String, ClassifierResult> results = new HashMap<>();
+	
 	private int historyLenght = 10;
 	private double threshold = 0.05d;
 	private int steps;
@@ -36,6 +40,7 @@ public class CorvinaClassifier {
 		
 		if (!this.outputs.containsKey(name)) {
 			this.outputs.add(name, values);
+			this.results.put(name, new ClassifierResult(name));
 			return null;
 		}
 		
@@ -56,16 +61,23 @@ public class CorvinaClassifier {
 	
 	public String infer(String realName, int[] values) {
 		this.steps++;
+		ClassifierResult result = this.results.get(realName);
+		if (result != null)
+			result.addStep();
 		
+		int[] sdr = ArrayUtils.isSparse(values) ? values : ArrayUtils.where(values, 
+				ArrayUtils.INT_GREATER_THAN_0);
+ 
 		StringBuffer sb = new StringBuffer();
 		
 		for (String name : this.outputs.keySet()) {
 			List<Object> records = this.outputs.get(name);
 			for (Object record : records) {
-				if (match(values, (int[]) record)) {
+				if (match(sdr, (int[]) record)) {
 					if (name.equals(realName)) {
 						this.hits++;
-						
+						if (result != null)
+							result.addHit();
 					}
 					else {
 						log.warn("Bad Hit: [" + name + "]");
@@ -115,6 +127,24 @@ public class CorvinaClassifier {
 	
 	public String getStatsString() {
 		return "Steps: " + this.steps + " Hits: " + this.hits + " (" + (double) this.hits / this.steps * 100 + " %)";
+	}
+	
+	public String getReport() {
+		StringBuffer sb = new StringBuffer();
+		
+		for (ClassifierResult r : this.results.values()) {
+			sb.append(r.toString());
+			sb.append("\n");
+		}
+		
+		return sb.toString();
+	}
+
+	public void reset() {
+		this.outputs.clear();
+		this.results.clear();
+		this.steps = 0;
+		this.hits = 0;
 	}
 
 }

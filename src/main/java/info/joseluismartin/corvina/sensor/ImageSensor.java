@@ -46,8 +46,13 @@ public class ImageSensor {
 	private ValueList valueList;
 	private SensorParams params;
 	private String imageName;
+	private List<String> imagesToLoad = new ArrayList<>();
+	private int cicles = 100;
+	private int imageCicles = 100;
+	private int imageStep = imageCicles;
+	private boolean singleImage = true;
+	private List<ImageSensorListener> listeners = new ArrayList<>();
 
-	
 	public ImageSensor(String path) {
 		// FIXME: Do a lazy load of image
 		loadImage(path);
@@ -66,7 +71,10 @@ public class ImageSensor {
 		catch (IOException e) {
 			return;
 		}
-		// have a image
+		// have a image?
+		if (source == null)
+			return;
+		
 		this.imageName = file.getName();
 		
 		for (ImageFilter filter : filters) {
@@ -77,6 +85,11 @@ public class ImageSensor {
 		this.image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		this.image.getGraphics().drawImage(source, 0, 0, null);
 		this.original = ImageUtils.deepCopy(this.image);
+		fireImageChange();
+	}
+
+	private void fireImageChange() {
+		this.listeners.forEach(l -> l.imageChanged());
 	}
 
 	private BufferedImage applyFilter(BufferedImage source, ImageFilter filter) {
@@ -148,6 +161,9 @@ public class ImageSensor {
 	 */
 	public synchronized int[] getAsDense() {
 		
+		if (!nextImage())
+			return null;
+		
 		if (this.image == null)
 			return new int[0];
 	
@@ -170,10 +186,31 @@ public class ImageSensor {
 		
 		log.debug("zeros [" + zeros + "] ones [" + ones + "]");
 		
-		return dense.stream().mapToInt(i -> i).toArray();
+		int[] array = dense.stream().mapToInt(i -> i).toArray();
+		
+		return array;
 	}
 
-	private synchronized BufferedImage applyDinamycFilters(List<BufferedImageOp> fs) {
+	private boolean nextImage() {
+		if (this.singleImage)
+			return true;
+		
+		if (this.imagesToLoad.isEmpty())
+			return false;
+		
+		if (this.imageStep-- != 0) {
+			loadImage(this.imagesToLoad.get(0));
+		}
+		else {
+			this.imagesToLoad.remove(0);
+			this.imageStep = this.imageCicles;
+			return nextImage();
+		}
+		
+		return true;
+	}
+
+	private BufferedImage applyDinamycFilters(List<BufferedImageOp> fs) {
 		BufferedImage filtered = this.original;
 		
 		for (BufferedImageOp op : fs)
@@ -210,7 +247,7 @@ public class ImageSensor {
 		return image;
 	}
 
-	public void setImage(BufferedImage image) {
+	public synchronized void setImage(BufferedImage image) {
 		this.image = image;
 	}
 	
@@ -241,6 +278,73 @@ public class ImageSensor {
 	 */
 	public void setImageName(String imageName) {
 		this.imageName = imageName;
+	}
+	
+
+	/**
+	 * @return the imagesToLoad
+	 */
+	public List<String> getImagesToLoad() {
+		return imagesToLoad;
+	}
+
+	/**
+	 * @param imagesToLoad the imagesToLoad to set
+	 */
+	public void setImagesToLoad(List<String> imagesToLoad) {
+		this.imagesToLoad.clear();
+		this.imagesToLoad.addAll(imagesToLoad);
+	}
+
+	/**
+	 * @return the cicles
+	 */
+	public int getCicles() {
+		return cicles;
+	}
+
+	/**
+	 * @param cicles the cicles to set
+	 */
+	public void setCicles(int cicles) {
+		this.cicles = cicles;
+	}
+
+	/**
+	 * @return the imageCicles
+	 */
+	public int getImageCicles() {
+		return imageCicles;
+	}
+
+	/**
+	 * @param imageCicles the imageCicles to set
+	 */
+	public void setImageCicles(int imageCicles) {
+		this.imageCicles = imageCicles;
+	}
+
+	/**
+	 * @return the singleImage
+	 */
+	public boolean isSingleImage() {
+		return singleImage;
+	}
+
+	/**
+	 * @param singleImage the singleImage to set
+	 */
+	public void setSingleImage(boolean singleImage) {
+		this.singleImage = singleImage;
+	}
+	
+	public void addListener(ImageSensorListener l) {
+		if (!this.listeners.contains(l))
+			this.listeners.add(l);
+	}
+	
+	public void removeListener(ImageSensorListener l) {
+		this.listeners.remove(l);
 	}
 
 }

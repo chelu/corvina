@@ -34,7 +34,6 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private static final Object LOCK = new Object();
 	private static Log log = LogFactory.getLog(Corvina.class);
 
-	@Autowired
 	private Network network;
 	@Autowired 
 	private MainFrame mainFrame;
@@ -42,7 +41,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private ImageSensor imageSensor;
 	private CorvinaClassifier classifier = new CorvinaClassifier();
 	private CorvinaClassifier sparseClassifier = new CorvinaClassifier();
-	private volatile int step;
+	private volatile long step;
 	private volatile boolean running;
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private volatile boolean infer;
@@ -53,10 +52,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		ApplicationContextGuiFactory.setPlasticLookAndFeel();
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
 
-		Network network = ctx.getBean(Network.class);
 		MainFrame main = ctx.getBean("mainFrame", MainFrame.class);
-		Corvina corvina = ctx.getBean(Corvina.class);
-		network.observe().subscribe(corvina);
 
 		// Start swing application on event thread
 		EventQueue.invokeLater(new Runnable() {
@@ -90,13 +86,33 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	@Override
 	public void run() {
+		if (this.network == null)
+			return;
+		
 		while (this.running) {
-			this.mainFrame.refresh();
 			int[] input = this.imageSensor.getAsDense();
+			
+			if (input == null) {
+				this.running = false;
+				return;
+			}
+			
 			long millis = System.currentTimeMillis();
 			this.network.compute(input);
-			log.info((double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
+			log.info("Step [" + step +"] " + (double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
 			this.step++;
+			try {
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						mainFrame.refresh();
+					}
+				});
+			} 
+			catch (Exception e) {
+				log.error(e);
+			}
 		}
 	}
 
@@ -114,6 +130,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	public void onStart() {
 		log.info("On Start");
+		this.mainFrame.refresh();
 		
 	}
 
@@ -139,7 +156,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		}
 		
 		try {
-			SwingUtilities.invokeAndWait(() -> this.mainFrame.setHit(infered));
+			SwingUtilities.invokeLater(() -> this.mainFrame.setHit(infered));
 		} 
 		catch (Exception e) {
 			log.error(e);
@@ -164,5 +181,29 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		this.infer = infer;
 	}
 
+	public CorvinaClassifier getClassifier() {
+		return this.classifier;
+	}
 
+	/**
+	 * @return the network
+	 */
+	public Network getNetwork() {
+		return network;
+	}
+
+	/**
+	 * @param network the network to set
+	 */
+	public void setNetwork(Network network) {
+		this.network = network;
+		this.network.observe().subscribe(this);
+	}
+
+	/**
+	 * @param running the running to set
+	 */
+	public void setRunning(boolean running) {
+		this.running = running;
+	}
 }

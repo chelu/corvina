@@ -3,7 +3,6 @@ package info.joseluismartin.corvina.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 
-import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -13,14 +12,14 @@ import javax.swing.JSplitPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jdal.swing.AbstractView;
 import org.jdal.swing.form.BoxFormBuilder;
 import org.jdal.swing.form.FormUtils;
 import org.numenta.nupic.Connections;
+import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.util.ArrayUtils;
+import org.springframework.beans.PropertyAccessorFactory;
 
 /**
  * 2D View for {@link Layer}
@@ -42,6 +41,8 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	private JSlider permanenceIncrement = new JSlider();
 	private JSlider synPermConnected = new JSlider();
 	private JSlider potentialPct = new JSlider();
+	private JCheckBox paintLayer = new JCheckBox("Paint");
+	
 	private boolean disabledListeners;
 	
 	public LayerView() {
@@ -81,6 +82,7 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	
 	private Component createFormPanel() {
 		BoxFormBuilder fb = new BoxFormBuilder(FormUtils.createEmptyBorder(5));
+		fb.setDefaultSpace(10);
 		fb.row(50);
 		fb.add("Potential Radius", this.potentialRadius);
 		fb.add("SynPermTrimTreshold", this.synPermTrimTreshold);
@@ -91,6 +93,8 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		fb.add("Permanence Dec", this.permanenceDecrement);
 		fb.add("SynPerm Connected", this.synPermConnected);
 		fb.add("Global Innibition", this.globalInhibition);
+		fb.row();
+		fb.add(this.paintLayer);
 		
 		return fb.getForm();
 	}
@@ -102,12 +106,16 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
+		slider.setFont(slider.getFont().deriveFont(10f));
 		
 		slider.addChangeListener(this);
 	}
 
 	@Override
 	protected void doRefresh() {
+		if (!this.paintLayer.isSelected())
+			return;
+		
 		Layer<?> layer = getModel();
 		
 		if (layer == null)
@@ -116,10 +124,13 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		
 		this.temporal.setDimensions(layer.getConnections().getMemory().getDimensions());
 		this.spatial.setDimensions(layer.getConnections().getMemory().getDimensions());
+		int[] sdr = layer.getPredictedColumns();
 		int[] values = new int[layer.getConnections().getNumColumns()];
-		ArrayUtils.setIndexesTo(values, layer.getPredictedColumns(), 1);
+		if (sdr != null)
+			ArrayUtils.setIndexesTo(values, layer.getPredictedColumns(), 1);
 		this.temporal.setValues(values);
 		this.temporal.repaint();
+		
 		this.spatial.setValues(layer.getActiveColumns());
 		this.spatial.repaint();
 	}
@@ -136,7 +147,7 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 			return;
 		
 		if (source == this.potentialRadius) {
-			model.getConnections().setPotentialRadius(this.potentialRadius.getValue());
+			updatePotentialRadius(this.potentialRadius.getValue());
 		}
 		else if (source == this.synPermTrimTreshold) {
 			model.getConnections().setSynPermTrimThreshold(toPercent(this.synPermTrimTreshold.getValue()));
@@ -192,6 +203,16 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	
 	private double toPercent(int value) {
 		return (double) value / 100;
+	}
+	
+	private void updatePotentialRadius(int value) {
+		Connections c = getModel().getConnections();
+		c.setPotentialRadius(this.potentialRadius.getValue());
+		// SpatialPooler
+		SpatialPooler sp = (SpatialPooler) PropertyAccessorFactory.forDirectFieldAccess(getModel())
+				.getPropertyValue("spatialPooler");
+		
+		sp.connectAndConfigureInputs(c);
 	}
 	
 	/**
