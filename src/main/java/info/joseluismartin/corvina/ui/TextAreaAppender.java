@@ -1,7 +1,5 @@
 package info.joseluismartin.corvina.ui;
 
-import java.lang.reflect.InvocationTargetException;
-
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;

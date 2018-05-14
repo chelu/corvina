@@ -130,14 +130,14 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	public void onStart() {
 		log.info("On Start");
-		this.mainFrame.refresh();
+	//	this.mainFrame.refresh();
 		
 	}
 
 	@Override
 	public void onNext(Inference t) {
 		log.info("On Next");
-		log.info("Sparse Actives: " + Arrays.toString(t.getSparseActives()));
+		log.info("Sparse Actives: " + Arrays.toString(t.getFeedForwardSparseActives()));
 		log.info("SDR: " + Arrays.toString(t.getSDR()));
 
 		String infered = this.classifier.compute(t.getSDR(),this.imageSensor.getImageName(), infer);

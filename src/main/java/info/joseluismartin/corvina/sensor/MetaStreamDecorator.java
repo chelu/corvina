@@ -21,8 +21,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import org.numenta.nupic.ValueList;
 import org.numenta.nupic.network.sensor.MetaStream;
+import org.numenta.nupic.network.sensor.ValueList;
 
 /**
  * Decorator for {@link Stream Streams}

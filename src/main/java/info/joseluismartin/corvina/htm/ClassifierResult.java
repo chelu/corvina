@@ -1,11 +1,17 @@
 package info.joseluismartin.corvina.htm;
 
 
+/**
+ * Result from Classification.
+ * 
+ * @author Jose Luis Martin.
+ */
 public class ClassifierResult {
 
 	private String name;
 	private long steps = 0;
 	private long hits = 0;
+	private long wrongs = 0;
 
 	public ClassifierResult() {
 
@@ -66,6 +72,8 @@ public class ClassifierResult {
 		sb.append(" hits: ");
 		sb.append(this.hits);
 		sb.append(" (" + (double) this.hits / this.steps * 100 + " %)");
+		sb.append("wrongs: ");
+		sb.append(this.wrongs);
 		
 		return sb.toString();
 	}
@@ -76,6 +84,10 @@ public class ClassifierResult {
 
 	public void addStep() {
 		this.steps++;
+	}
+	
+	public void addWrong() {
+		this.wrongs++;
 	}
 	
 }

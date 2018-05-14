@@ -12,14 +12,15 @@ import java.awt.image.BufferedImage;
 public class ConstantHorizontalTraslation extends AffineWrapperOp {
 
 	double tx = 0;
-	double increment = 0.1;
+	double increment = 1;
 	
 	@Override
 	public BufferedImage filter(BufferedImage src, BufferedImage dest) {
-		this.tx += this.increment;
 		
-		if (this.tx > src.getWidth()) {
-			this.tx = -src.getWidth() + this.increment;	
+		double w = src.getWidth();
+		if (this.tx > w / 2 || this.tx <  - w / 2) {
+			this.increment = -this.increment;	
+			this.tx += this.increment;
 		}
 		
 		this.op = new AffineTransformOp(

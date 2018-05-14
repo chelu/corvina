@@ -15,8 +15,9 @@ import javax.swing.event.ChangeListener;
 import org.jdal.swing.AbstractView;
 import org.jdal.swing.form.BoxFormBuilder;
 import org.jdal.swing.form.FormUtils;
-import org.numenta.nupic.Connections;
 import org.numenta.nupic.algorithms.SpatialPooler;
+import org.numenta.nupic.model.Connections;
+import org.numenta.nupic.model.SDR;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.util.ArrayUtils;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -124,14 +125,14 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		
 		this.temporal.setDimensions(layer.getConnections().getMemory().getDimensions());
 		this.spatial.setDimensions(layer.getConnections().getMemory().getDimensions());
-		int[] sdr = layer.getPredictedColumns();
+		int[] sdr = SDR.cellsAsColumnIndices(layer.getPredictiveCells(), layer.getConnections().getCellsPerColumn());
 		int[] values = new int[layer.getConnections().getNumColumns()];
 		if (sdr != null)
-			ArrayUtils.setIndexesTo(values, layer.getPredictedColumns(), 1);
+			ArrayUtils.setIndexesTo(values, sdr, 1);
 		this.temporal.setValues(values);
 		this.temporal.repaint();
 		
-		this.spatial.setValues(layer.getActiveColumns());
+		this.spatial.setValues(layer.getFeedForwardActiveColumns());
 		this.spatial.repaint();
 	}
 

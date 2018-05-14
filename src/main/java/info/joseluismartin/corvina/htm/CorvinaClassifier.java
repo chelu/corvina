@@ -26,32 +26,35 @@ public class CorvinaClassifier {
 	private MultiValueMap<String, Object> outputs = new LinkedMultiValueMap<>();
 	private HashMap<String, ClassifierResult> results = new HashMap<>();
 	
-	private int historyLenght = 10;
-	private double threshold = 0.05d;
+	private int historyLenght = 50;
+	private double threshold = 0.1d;
 	private int steps;
 	private int hits;
 	
 	public String compute(int[] values, String name, boolean infer) {
+		int[] sdr = ArrayUtils.isSparse(values) ? values : ArrayUtils.where(values, 
+				ArrayUtils.INT_GREATER_THAN_0);
+		
 		if (infer)
 			return infer(name, values);
 		
-		if (values.length == 0)
+		if (sdr.length == 0)
 			return null;
 		
 		if (!this.outputs.containsKey(name)) {
-			this.outputs.add(name, values);
+			this.outputs.add(name, sdr);
 			this.results.put(name, new ClassifierResult(name));
 			return null;
 		}
 		
 		List<Object> history = this.outputs.get(name);
 		
-		if (match(values, history)) {
+		if (match(sdr, history)) {
 		    // already have this pattern
 		    return name;
 		}
 		
-		history.add(0, values);
+		history.add(0, sdr);
 		
 		if (history.size() > this.historyLenght)
 			history.remove(this.historyLenght);
@@ -65,15 +68,12 @@ public class CorvinaClassifier {
 		if (result != null)
 			result.addStep();
 		
-		int[] sdr = ArrayUtils.isSparse(values) ? values : ArrayUtils.where(values, 
-				ArrayUtils.INT_GREATER_THAN_0);
- 
 		StringBuffer sb = new StringBuffer();
 		
 		for (String name : this.outputs.keySet()) {
 			List<Object> records = this.outputs.get(name);
 			for (Object record : records) {
-				if (match(sdr, (int[]) record)) {
+				if (match(values, (int[]) record)) {
 					if (name.equals(realName)) {
 						this.hits++;
 						if (result != null)
@@ -81,6 +81,8 @@ public class CorvinaClassifier {
 					}
 					else {
 						log.warn("Bad Hit: [" + name + "]");
+						if (result != null)
+							result.addWrong();
 					}
 					sb.append(name).append(" ");
 					break;

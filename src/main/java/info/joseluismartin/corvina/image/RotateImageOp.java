@@ -14,7 +14,7 @@ public class RotateImageOp implements BufferedImageOp {
 	private AffineTransformOp op;
 	private AffineTransform tx = AffineTransform.getRotateInstance(0);
 	private double theta = 0;
-	private double increment = 0.01d;
+	private double increment = 0.05d;
 	
 
 	public RotateImageOp() {

@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.numenta.nupic.Connections;
 import org.numenta.nupic.model.Cell;
 import org.numenta.nupic.model.Column;
+import org.numenta.nupic.model.Connections;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;

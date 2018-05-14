@@ -86,6 +86,8 @@ public class MainFrame extends JFrame {
 		getContentPane().add(split, BorderLayout.CENTER);
 		setSize(new Dimension(1024, 768));
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		this.corvina.setNetwork(this.networkView.getModel());
+		refresh();
 	}
 
 	protected void initToolBar() {
@@ -125,6 +127,8 @@ public class MainFrame extends JFrame {
 		this.networkView.setModel(network);
 		this.networkView.refresh();
 		this.corvina.setNetwork(network);
+		if (this.imageSensorView.getModel() != null) 
+			this.imageSensorView.getModel().reset();
 	}
 
 	private void showClassifierReport() {

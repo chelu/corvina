@@ -19,10 +19,10 @@ import javax.imageio.ImageIO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.numenta.nupic.FieldMetaType;
-import org.numenta.nupic.ValueList;
 import org.numenta.nupic.network.sensor.MetaStream;
 import org.numenta.nupic.network.sensor.SensorFlags;
 import org.numenta.nupic.network.sensor.SensorParams;
+import org.numenta.nupic.network.sensor.ValueList;
 import org.numenta.nupic.util.Tuple;
 
 import info.joseluismartin.corvina.image.ImageUtils;
@@ -49,7 +49,9 @@ public class ImageSensor {
 	private List<String> imagesToLoad = new ArrayList<>();
 	private int cicles = 100;
 	private int imageCicles = 100;
-	private int imageStep = imageCicles;
+	private int imageStep = 0;
+	private int currentImage = 0;
+	
 	private boolean singleImage = true;
 	private List<ImageSensorListener> listeners = new ArrayList<>();
 
@@ -195,15 +197,17 @@ public class ImageSensor {
 		if (this.singleImage)
 			return true;
 		
-		if (this.imagesToLoad.isEmpty())
+		if (this.currentImage == this.imagesToLoad.size()) {
+			reset();
 			return false;
-		
-		if (this.imageStep-- != 0) {
-			loadImage(this.imagesToLoad.get(0));
 		}
-		else {
-			this.imagesToLoad.remove(0);
-			this.imageStep = this.imageCicles;
+		
+		if (this.imageStep == 0)
+			loadImage(this.imagesToLoad.get(this.currentImage));
+		
+		if (this.imageStep++ == this.imageCicles) {
+			this.currentImage++;
+			this.imageStep = 0;
 			return nextImage();
 		}
 		
@@ -233,6 +237,11 @@ public class ImageSensor {
 		}
 		
 		return this.valueList;
+	}
+	
+	public void reset() {
+		this.currentImage = 0;
+		this.imageStep = 0;
 	}
 	
 	public List<ImageFilter> getFilters() {
@@ -294,6 +303,7 @@ public class ImageSensor {
 	public void setImagesToLoad(List<String> imagesToLoad) {
 		this.imagesToLoad.clear();
 		this.imagesToLoad.addAll(imagesToLoad);
+		this.setSingleImage(false);
 	}
 
 	/**
@@ -322,6 +332,7 @@ public class ImageSensor {
 	 */
 	public void setImageCicles(int imageCicles) {
 		this.imageCicles = imageCicles;
+		this.imageStep = 0;
 	}
 
 	/**

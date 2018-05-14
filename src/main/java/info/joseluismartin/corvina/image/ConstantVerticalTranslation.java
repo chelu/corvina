@@ -7,15 +7,15 @@ import java.awt.image.BufferedImage;
 public class ConstantVerticalTranslation extends AffineWrapperOp {
 
 	double ty = 0;
-	double increment = 0.1;
+	double increment = 1;
 	
 	@Override
 	public BufferedImage filter(BufferedImage src, BufferedImage dest) {
 		this.ty += this.increment;
+		double h = src.getHeight();
 		
-		if (this.ty >= src.getHeight()) {
-			this.ty = -src.getHeight() + this.increment;
-			
+		if (this.ty > h / 2|| this.ty < - h / 2) {
+			this.increment = -this.increment;
 		}
 		
 		this.op = new AffineTransformOp(

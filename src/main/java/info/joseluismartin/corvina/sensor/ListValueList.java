@@ -2,7 +2,7 @@ package info.joseluismartin.corvina.sensor;
 
 import java.util.ArrayList;
 
-import org.numenta.nupic.ValueList;
+import org.numenta.nupic.network.sensor.ValueList;
 import org.numenta.nupic.util.Tuple;
 
 /**

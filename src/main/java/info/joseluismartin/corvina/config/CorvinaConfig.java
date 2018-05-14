@@ -21,6 +21,7 @@ import info.joseluismartin.corvina.image.ConstantHorizontalTraslation;
 import info.joseluismartin.corvina.image.ConstantVerticalTranslation;
 import info.joseluismartin.corvina.image.RandomSweepOp;
 import info.joseluismartin.corvina.image.RotateImageOp;
+import info.joseluismartin.corvina.image.SccadeOp;
 import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.ImageSensorView;
 import info.joseluismartin.corvina.ui.LayerView;
@@ -111,6 +112,7 @@ public class CorvinaConfig {
 		available.add(new ConstantHorizontalTraslation());
 		available.add(new ConstantVerticalTranslation());
 		available.add(new CircularSweepOp());
+		available.add(new SccadeOp());
 		imsv.setAvailableFilters(available);
 		imsv.refresh();
 		
@@ -120,7 +122,7 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters networkParameters() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {64, 64});
+		p.setColumnDimensions(new int[] {32, 32});
 		p.setInputDimensions(new int[] {64, 64});
 
 		return p;
@@ -129,10 +131,11 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters23() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {64, 64});
+		p.setColumnDimensions(new int[] {32, 32});
 		p.setInputDimensions(new int[] {64, 64});
 		configureParamters(p);
-		p.setNumActiveColumnsPerInhArea(240);
+		p.setNumActiveColumnsPerInhArea(60);
+		p.setCellsPerColumn(1);
 		
 		return p;
 	}
@@ -150,8 +153,8 @@ public class CorvinaConfig {
 		p.setLocalAreaDensity(-1);
 		p.setInitialPermanence(0.4);
 		p.setConnectedPermanence(0.2);
-		p.setMinThreshold(20);
-		p.setActivationThreshold(20);
+		p.setMinThreshold(10);
+		p.setActivationThreshold(10);
 		p.setMaxNewSynapseCount(50);
 		p.setSeed(1956);
 		p.setLearningRadius(8);
@@ -161,11 +164,12 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters4() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {32, 32});
-		p.setInputDimensions(new int[] {64, 64});
+		p.setColumnDimensions(new int[] {16, 16});
+		p.setInputDimensions(new int[] {32, 32});
 		configureParamters(p);
-		p.setNumActiveColumnsPerInhArea(60);
-	//	p.setPotentialRadius(4);
+		p.setNumActiveColumnsPerInhArea(10);
+		p.setPotentialRadius(16);
+		p.setLearningRadius(16);
 		
 		return p;
 	}
