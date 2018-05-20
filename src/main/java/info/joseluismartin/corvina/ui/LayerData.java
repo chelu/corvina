@@ -1,39 +1,81 @@
 package info.joseluismartin.corvina.ui;
 
+import org.numenta.nupic.Parameters;
+
 public class LayerData {
 	
-	private int nColumns;
-	private int nInputs;
+	private int[] columnsDimensions;
+	private int[] inputDimensions;
 	private String name;
+	private Parameters parameters = Parameters.getAllDefaultParameters();
 	
-	/**
-	 * @return the nColumns
-	 */
-	public int getnColumns() {
-		return nColumns;
+	public LayerData() {
+		configureParamters(this.parameters);
+	}
+	
+	private void configureParamters(Parameters p) {
+		p.setCellsPerColumn(32);
+		p.setPotentialRadius(8);
+		p.setSynPermConnected(0.2);
+		p.setSynPermTrimThreshold(0.1d);
+		p.setGlobalInhibition(true);
+		p.setPermanenceDecrement(0.1);
+		p.setPermanenceIncrement(0.1);
+		p.setMaxBoost(1);
+		p.setPotentialPct(0.5);
+		p.setLocalAreaDensity(-1);
+		p.setInitialPermanence(0.4);
+		p.setConnectedPermanence(0.2);
+		p.setMinThreshold(10);
+		p.setActivationThreshold(10);
+		p.setMaxNewSynapseCount(50);
+		p.setSeed(1956);
+		p.setLearningRadius(8);
+		
 	}
 	
 	/**
-	 * @param nColumns the nColumns to set
+	 * @return the parameters
 	 */
-	public void setnColumns(int nColumns) {
-		this.nColumns = nColumns;
+	public Parameters getParameters() {
+		return parameters;
 	}
-	
+
 	/**
-	 * @return the nInputs
+	 * @param parameters the parameters to set
 	 */
-	public int getnInputs() {
-		return nInputs;
+	public void setParameters(Parameters parameters) {
+		this.parameters = parameters;
 	}
-	
+
 	/**
-	 * @param nInputs the nInputs to set
+	 * @return the columnsDimensions
 	 */
-	public void setnInputs(int nInputs) {
-		this.nInputs = nInputs;
+	public int[] getColumnsDimensions() {
+		return columnsDimensions;
 	}
-	
+
+	/**
+	 * @param columnsDimensions the columnsDimensions to set
+	 */
+	public void setColumnsDimensions(int[] columnsDimensions) {
+		this.columnsDimensions = columnsDimensions;
+	}
+
+	/**
+	 * @return the inputDimensions
+	 */
+	public int[] getInputDimensions() {
+		return inputDimensions;
+	}
+
+	/**
+	 * @param inputDimensions the inputDimensions to set
+	 */
+	public void setInputDimensions(int[] inputDimensions) {
+		this.inputDimensions = inputDimensions;
+	}
+
 	/**
 	 * @return the name
 	 */

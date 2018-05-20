@@ -2,10 +2,16 @@ package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.logging.Handler;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -15,13 +21,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 import org.jdal.swing.SimpleDialog;
+import org.jdal.swing.form.FormUtils;
 import org.numenta.nupic.network.Network;
+import org.numenta.nupic.network.Persistence;
+import org.numenta.nupic.serialize.HTMObjectInput;
+import org.numenta.nupic.serialize.HTMObjectOutput;
+import org.numenta.nupic.serialize.SerializerCore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -46,12 +55,21 @@ public class MainFrame extends JFrame {
 	private static final String STOP = "Stop";
 	private static final String RESET = "RESET";
 	private static final String UNKNOWN = "UNKNOWN";
+	private static final String SAVE_ICON = "org/freedesktop/tango/22x22/actions/document-save.png";
+	private static final String LOAD_ICON = "org/freedesktop/tango/22x22/actions/document-open.png";
+	private static final String SAVE_AS_ICON = "org/freedesktop/tango/22x22/actions/document-save-as.png";
+	private static final String NEW_ICON =  "org/freedesktop/tango/22x22/actions/document-new.png";
 
 	private JMenu menu = new JMenu();
 	private JToolBar toolBar = new JToolBar();
 	private JTabbedPane tab = new JTabbedPane();
 	private JLabel hit = new JLabel();
 	private JToggleButton startButton = new JToggleButton(START);
+	private JButton saveButton = new JButton(FormUtils.getIcon(SAVE_ICON));
+	private JButton loadButton = new JButton(FormUtils.getIcon(LOAD_ICON));
+	private JButton saveAsButton = new JButton(FormUtils.getIcon(SAVE_AS_ICON));
+	private JButton newButton = new JButton(FormUtils.getIcon(NEW_ICON));
+	private File networkFile;
 	
 	@Autowired
 	private NetworkView networkView;
@@ -102,6 +120,18 @@ public class MainFrame extends JFrame {
 				((JToggleButton) e.getSource()).setText(corvina.isRunning() ? STOP : START);
 		});
 		
+		this.newButton.addActionListener(e -> newNetwork());
+		this.saveButton.addActionListener(e -> save());
+		this.saveAsButton.addActionListener(e -> saveAs());
+		this.loadButton.addActionListener(e -> load());
+		
+		// Load and save buttons.
+		this.toolBar.add(this.newButton);
+		this.toolBar.add(this.saveButton);
+		this.toolBar.add(this.saveAsButton);
+		this.toolBar.add(this.loadButton);
+		this.toolBar.addSeparator();
+		// Operation control
 		this.toolBar.add(startButton);
 		this.toolBar.addSeparator();
 		JToggleButton inferButton = new JToggleButton("Infer");
@@ -121,12 +151,76 @@ public class MainFrame extends JFrame {
 		this.toolBar.add(this.hit);
 	}
 	
+	private void load() {
+		JFileChooser chooser = new JFileChooser();
+		int value = chooser.showOpenDialog(this);
+		if (value == JFileChooser.APPROVE_OPTION) {
+			File f = chooser.getSelectedFile();
+			try {
+				SerializerCore serializer = Persistence.get().serializer();
+				HTMObjectInput reader = serializer.getObjectInput(new FileInputStream(f));
+		        Network network = (Network)reader.readObject(Network.class);
+				setNetwork(network);
+			} catch (Exception e) {
+				FormUtils.showError("Cannot open file");
+			}
+		}
+	}
+
+	private void saveAs() {
+		JFileChooser chooser = new JFileChooser();
+		int value = chooser.showOpenDialog(this);
+		if (value == JFileChooser.APPROVE_OPTION) {
+			this.networkFile  = chooser.getSelectedFile();
+			save();
+		}
+	}
+
+	private void save() {
+		if (this.networkFile  == null) {
+			saveAs();
+			return;
+		}
+
+		try {
+			SerializerCore serializer = Persistence.get().serializer();
+			HTMObjectOutput writer = serializer.getObjectOutput(new FileOutputStream(this.networkFile));
+			Network network = this.corvina.getNetwork();
+			writer.writeObject(network, Network.class);
+            writer.flush();
+            writer.close();
+		} catch (Exception e) {
+			FormUtils.showError("Cannot save network");
+		}
+	}
+
+	private void newNetwork() {
+		NetworkDialog dlg  =  this.context.getBean(NetworkDialog.class);
+		dlg.setLocationRelativeTo(this);
+		dlg.setModal(true);
+		dlg.setVisible(true);
+		
+		if (dlg.isAccepted()) {
+			setNetwork(dlg.createNetwork());
+		}
+	}
+
+	/**
+	 * Expand network to corvina and network view.
+	 * @param network network to set.
+	 */
+	private void setNetwork(Network network) {
+		this.corvina.setNetwork(network);
+		this.networkView.setModel(network);
+		this.networkView.updateLayerCombo();
+		this.networkView.refresh();
+		
+	}
+	
+
 	private void reset() {
 		this.corvina.getClassifier().reset();
-		Network network = this.context.getBean(Network.class);
-		this.networkView.setModel(network);
-		this.networkView.refresh();
-		this.corvina.setNetwork(network);
+
 		if (this.imageSensorView.getModel() != null) 
 			this.imageSensorView.getModel().reset();
 	}
@@ -151,5 +245,6 @@ public class MainFrame extends JFrame {
 	public void setHit(String name) {
 		this.hit.setText(name == null ? UNKNOWN : name);
 	}
+
 }
 

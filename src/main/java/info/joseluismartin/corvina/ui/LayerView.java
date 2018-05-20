@@ -125,12 +125,15 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 		
 		this.temporal.setDimensions(layer.getConnections().getMemory().getDimensions());
 		this.spatial.setDimensions(layer.getConnections().getMemory().getDimensions());
-		int[] sdr = SDR.cellsAsColumnIndices(layer.getPredictiveCells(), layer.getConnections().getCellsPerColumn());
-		int[] values = new int[layer.getConnections().getNumColumns()];
-		if (sdr != null)
-			ArrayUtils.setIndexesTo(values, sdr, 1);
-		this.temporal.setValues(values);
-		this.temporal.repaint();
+	
+		if (layer.getPredictiveCells() != null) {
+			int[] sdr = SDR.cellsAsColumnIndices(layer.getPredictiveCells(), layer.getConnections().getCellsPerColumn());
+			int[] values = new int[layer.getConnections().getNumColumns()];
+			if (sdr != null)
+				ArrayUtils.setIndexesTo(values, sdr, 1);
+			this.temporal.setValues(values);
+			this.temporal.repaint();
+		}
 		
 		this.spatial.setValues(layer.getFeedForwardActiveColumns());
 		this.spatial.repaint();

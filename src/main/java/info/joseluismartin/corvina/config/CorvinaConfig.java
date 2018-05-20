@@ -4,11 +4,15 @@ import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JDialog;
+
+import org.jdal.swing.SimpleDialog;
 import org.numenta.nupic.Parameters;
 import org.numenta.nupic.algorithms.TemporalMemory;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -26,6 +30,8 @@ import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.ImageSensorView;
 import info.joseluismartin.corvina.ui.LayerView;
 import info.joseluismartin.corvina.ui.MainFrame;
+import info.joseluismartin.corvina.ui.NetworkDialog;
+import info.joseluismartin.corvina.ui.NetworkEditor;
 import info.joseluismartin.corvina.ui.NetworkView;
 
 /**
@@ -245,6 +251,21 @@ public class CorvinaConfig {
 		NetworkView networkView = new NetworkView(network());
 		
 		return networkView;
+	}
+	
+	@Bean
+	@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) 
+	public NetworkDialog networkDialog() {
+		NetworkDialog dlg = new NetworkDialog("New network", networkEditor());
+		dlg.setSize(800, 300);
+		
+		return dlg;
+	}
+	
+	@Bean
+	@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+	public NetworkEditor networkEditor() {
+		return new NetworkEditor();
 	}
 	
 	@Bean

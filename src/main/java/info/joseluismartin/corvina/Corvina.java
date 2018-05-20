@@ -2,7 +2,6 @@ package info.joseluismartin.corvina;
 
 
 import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -22,6 +21,7 @@ import info.joseluismartin.corvina.htm.CorvinaClassifier;
 import info.joseluismartin.corvina.sensor.ImageSensor;
 import info.joseluismartin.corvina.ui.MainFrame;
 import rx.Subscriber;
+import rx.Subscription;
 
 /**
  * Application launcher. Load Spring context and start the Network.
@@ -45,36 +45,8 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private volatile boolean running;
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private volatile boolean infer;
+	private Subscription networkSubscription;
 
-	public static void main(String[] args) {
-		log.info("Starting corvina...");
-		
-		ApplicationContextGuiFactory.setPlasticLookAndFeel();
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
-
-		MainFrame main = ctx.getBean("mainFrame", MainFrame.class);
-
-		// Start swing application on event thread
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				main.setVisible(true);
-			}
-		});
-
-		// wait for ever...
-		synchronized (LOCK) {
-			try {
-				LOCK.wait();
-			} catch (InterruptedException e) {
-				log.info("Exiting.");
-			}
-		}
-
-		ctx.close();
-	}
-	
 	public void start() {
 		this.running = true;
 		executor.execute(this);
@@ -196,8 +168,13 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	 * @param network the network to set
 	 */
 	public void setNetwork(Network network) {
+		if (this.network != null && this.network != network) {
+			if (this.networkSubscription != null)
+				this.networkSubscription.unsubscribe();
+		}
+		
 		this.network = network;
-		this.network.observe().subscribe(this);
+		this.networkSubscription = this.network.observe().subscribe(this);
 	}
 
 	/**
@@ -205,5 +182,34 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	 */
 	public void setRunning(boolean running) {
 		this.running = running;
+	}
+	
+	public static void main(String[] args) {
+		log.info("Starting corvina...");
+		
+		ApplicationContextGuiFactory.setPlasticLookAndFeel();
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
+
+		MainFrame main = ctx.getBean("mainFrame", MainFrame.class);
+
+		// Start swing application on event thread
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				main.setVisible(true);
+			}
+		});
+
+		// wait for ever...
+		synchronized (LOCK) {
+			try {
+				LOCK.wait();
+			} catch (InterruptedException e) {
+				log.info("Exiting.");
+			}
+		}
+
+		ctx.close();
 	}
 }
