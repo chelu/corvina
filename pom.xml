@@ -193,6 +193,15 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
-
+		<repository>
+		  <id>jdal-snapshot</id>
+		  <url>https://www.jdal.org/artifactory/libs-snapshot</url>
+		  <releases>
+		    <enabled>false</enabled>
+		  </releases>
+		  <snapshots>
+		    <enabled>true</enabled>
+		  </snapshots>
+		</repository>
 	</repositories>
 </project>
