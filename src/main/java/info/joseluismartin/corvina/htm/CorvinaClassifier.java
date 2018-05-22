@@ -27,7 +27,7 @@ public class CorvinaClassifier {
 	private HashMap<String, ClassifierResult> results = new HashMap<>();
 	
 	private int historyLenght = 50;
-	private double threshold = 0.1d;
+	private double threshold = 0.2d;
 	private int steps;
 	private int hits;
 	

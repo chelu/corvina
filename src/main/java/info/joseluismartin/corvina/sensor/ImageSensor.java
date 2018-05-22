@@ -51,7 +51,24 @@ public class ImageSensor {
 	private int imageCicles = 100;
 	private int imageStep = 0;
 	private int currentImage = 0;
+	private boolean inverse = false;
+	private File currentFile;
+	private NameGenerator nameGenerator = new FileNameGenerator();
 	
+	/**
+	 * @return the nameGenerator
+	 */
+	public NameGenerator getNameGenerator() {
+		return nameGenerator;
+	}
+
+	/**
+	 * @param nameGenerator the nameGenerator to set
+	 */
+	public void setNameGenerator(NameGenerator nameGenerator) {
+		this.nameGenerator = nameGenerator;
+	}
+
 	private boolean singleImage = true;
 	private List<ImageSensorListener> listeners = new ArrayList<>();
 
@@ -78,14 +95,17 @@ public class ImageSensor {
 			return;
 		
 		this.imageName = file.getName();
+		this.currentFile = file;
 		
-		for (ImageFilter filter : filters) {
-			source = applyFilter(source, filter);
-		}
-
 		// convert to gray scale
 		this.image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		this.image.getGraphics().drawImage(source, 0, 0, null);
+		
+		for (ImageFilter filter : filters) {
+			this.image = applyFilter(this.image, filter);
+		}
+
+		
 		this.original = ImageUtils.deepCopy(this.image);
 		fireImageChange();
 	}
@@ -176,7 +196,7 @@ public class ImageSensor {
 		int zeros = 0;
 		int ones = 0;
 		for (Byte b : data) {
-			if (b.intValue() == 0) {
+			if (Byte.toUnsignedInt(b) < 100) {
 				zeros++;
 				dense.add(0);
 			}
@@ -356,6 +376,13 @@ public class ImageSensor {
 	
 	public void removeListener(ImageSensorListener l) {
 		this.listeners.remove(l);
+	}
+	
+	public String getClassifierName() {
+		if (this.nameGenerator != null)
+			return this.nameGenerator.createName(this.currentFile);
+		
+		return this.imageName;
 	}
 
 }

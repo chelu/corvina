@@ -1,13 +1,12 @@
 package info.joseluismartin.corvina.config;
 
 import java.awt.image.BufferedImageOp;
+import java.awt.image.ImageFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JDialog;
-
-import org.jdal.swing.SimpleDialog;
 import org.numenta.nupic.Parameters;
+import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.algorithms.TemporalMemory;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
@@ -23,6 +22,7 @@ import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
 import info.joseluismartin.corvina.image.CircularSweepOp;
 import info.joseluismartin.corvina.image.ConstantHorizontalTraslation;
 import info.joseluismartin.corvina.image.ConstantVerticalTranslation;
+import info.joseluismartin.corvina.image.InverseFilter;
 import info.joseluismartin.corvina.image.RandomSweepOp;
 import info.joseluismartin.corvina.image.RotateImageOp;
 import info.joseluismartin.corvina.image.SccadeOp;
@@ -81,7 +81,7 @@ public class CorvinaConfig {
 		Region region = new Region(REGION_1, network);
 		region.add(Network.createLayer(LAYER_23, parameters23())
 				.add(new TemporalMemory())
-				.add(new LowMemorySpatialPooler()))
+				.add(new SpatialPooler()))
 		.add(Network.createLayer(LAYER_4, parameters4())
 				.add(new TemporalMemory())
 				.add(new LowMemorySpatialPooler()))
@@ -120,6 +120,9 @@ public class CorvinaConfig {
 		available.add(new CircularSweepOp());
 		available.add(new SccadeOp());
 		imsv.setAvailableFilters(available);
+		List<ImageFilter> filters = new ArrayList<>();
+		filters.add(new InverseFilter());
+		imsv.setImageFilters(filters);
 		imsv.refresh();
 		
 		return imsv;

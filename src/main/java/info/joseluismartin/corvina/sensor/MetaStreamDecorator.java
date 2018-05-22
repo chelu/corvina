@@ -27,7 +27,7 @@ import org.numenta.nupic.network.sensor.ValueList;
 /**
  * Decorator for {@link Stream Streams}
  *
- * @author Jose Luis Martint
+ * @author Jose Luis Martin
  * @since 1.0
  */
 public class MetaStreamDecorator<T> implements MetaStream<T> {

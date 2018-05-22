@@ -46,6 +46,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private volatile boolean infer;
 	private Subscription networkSubscription;
+	private boolean usingSDR = true;
 
 	public void start() {
 		this.running = true;
@@ -70,19 +71,27 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 			}
 			
 			long millis = System.currentTimeMillis();
-			this.network.compute(input);
-			log.info("Step [" + step +"] " + (double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
-			this.step++;
 			try {
-				SwingUtilities.invokeLater(new Runnable() {
 
-					@Override
-					public void run() {
-						mainFrame.refresh();
-					}
-				});
+				if (input.length  == this.network.getTail().getTail().getConnections().getNumInputs()) {
+					this.network.compute(input);
+					log.info("Step [" + step +"] " + (double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
+					this.step++;
+
+					SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
+							mainFrame.refresh();
+						}
+					});
+					onNext(this.network.getHead().getHead().getInference());
+				}
+				else {
+					log.warn("Skipping invalid input of lenght [" + input.length + "].");
+				}
 			} 
-			catch (Exception e) {
+			catch (Throwable e) {
 				log.error(e);
 			}
 		}
@@ -98,6 +107,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	public void onError(Throwable e) {
 		log.info("On Error");
 		log.error(e);
+		// this.networkSubscription = this.network.observe().subscribe(this);
 	}
 
 	public void onStart() {
@@ -112,7 +122,8 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		log.info("Sparse Actives: " + Arrays.toString(t.getFeedForwardSparseActives()));
 		log.info("SDR: " + Arrays.toString(t.getSDR()));
 
-		String infered = this.classifier.compute(t.getSDR(),this.imageSensor.getImageName(), infer);
+		int[] toClassify = this.usingSDR  ? t.getSDR() : t.getFeedForwardActiveColumns();
+		String infered = this.classifier.compute(toClassify, this.imageSensor.getClassifierName(), infer);
 		
 		if (infered != null)
 			log.info("Seeing :" + infered);
@@ -174,7 +185,8 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		}
 		
 		this.network = network;
-		this.networkSubscription = this.network.observe().subscribe(this);
+		this.network.close();
+		// this.networkSubscription = this.network.observe().subscribe(this);
 	}
 
 	/**
@@ -183,6 +195,21 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
+	
+	/**
+	 * @return the usingSDR
+	 */
+	public boolean isUsingSDR() {
+		return usingSDR;
+	}
+
+	/**
+	 * @param usingSDR the usingSDR to set
+	 */
+	public void setUsingSDR(boolean usingSDR) {
+		this.usingSDR = usingSDR;
+	}
+
 	
 	public static void main(String[] args) {
 		log.info("Starting corvina...");

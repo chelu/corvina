@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -70,6 +71,8 @@ public class MainFrame extends JFrame {
 	private JButton saveAsButton = new JButton(FormUtils.getIcon(SAVE_AS_ICON));
 	private JButton newButton = new JButton(FormUtils.getIcon(NEW_ICON));
 	private File networkFile;
+	private JCheckBox usingSDR = new JCheckBox();
+	private JCheckBox learn  = new JCheckBox("Learn");
 	
 	@Autowired
 	private NetworkView networkView;
@@ -105,6 +108,7 @@ public class MainFrame extends JFrame {
 		setSize(new Dimension(1024, 768));
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.corvina.setNetwork(this.networkView.getModel());
+		this.usingSDR.addActionListener(l -> this.corvina.setUsingSDR(this.usingSDR.isSelected()));
 		refresh();
 	}
 
@@ -124,6 +128,8 @@ public class MainFrame extends JFrame {
 		this.saveButton.addActionListener(e -> save());
 		this.saveAsButton.addActionListener(e -> saveAs());
 		this.loadButton.addActionListener(e -> load());
+		this.learn.setSelected(true);
+		this.learn.addActionListener(e -> this.corvina.getNetwork().setLearn(this.learn.isSelected()));
 		
 		// Load and save buttons.
 		this.toolBar.add(this.newButton);
@@ -147,8 +153,14 @@ public class MainFrame extends JFrame {
 		resetButton.addActionListener(l -> reset());
 		this.toolBar.add(resetButton);
 		this.toolBar.addSeparator();
+		this.toolBar.add(this.usingSDR);
+		this.toolBar.add(new JLabel("SDR"));
+		this.toolBar.addSeparator();
+		this.toolBar.add(this.learn);
+		this.toolBar.addSeparator();	
 		this.toolBar.add(new JLabel("Hits: "));
 		this.toolBar.add(this.hit);
+		
 	}
 	
 	private void load() {
@@ -240,6 +252,7 @@ public class MainFrame extends JFrame {
 		this.imageSensorView.refreshImage();
 		this.startButton.setSelected(this.corvina.isRunning());
 		this.startButton.setText(corvina.isRunning() ? STOP : START);
+	// 	this.usingSDR.setSelected(this.corvina.isUsingSDR());
 	}
 	
 	public void setHit(String name) {
