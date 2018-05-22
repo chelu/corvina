@@ -73,8 +73,11 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.numenta</groupId> <artifactId>htm.java</artifactId> 
-			<version>0.6.3-SNAPSHOT</version> </dependency> -->
+		<dependency> 
+		  <groupId>org.numenta</groupId> 
+		  <artifactId>htm.java</artifactId> 
+		  <version>0.6.13</version> 
+		</dependency>
 
 		<dependency>
 			<groupId>io.reactivex</groupId>
