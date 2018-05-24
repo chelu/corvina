@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdal.swing.SimpleDialog;
 import org.jdal.swing.form.FormUtils;
+import org.numenta.nupic.algorithms.CLAClassifier;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Persistence;
 import org.numenta.nupic.serialize.HTMObjectInput;
@@ -37,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import info.joseluismartin.corvina.Corvina;
+import info.joseluismartin.corvina.model.CorvinaModel;
 
 /**
  * Corvina main frame.
@@ -103,6 +105,9 @@ public class MainFrame extends JFrame {
 		refresh();
 	}
 
+	/**
+	 * Initialize the application toolbar.
+	 */
 	protected void initToolBar() {
 	
 		this.startButton.addActionListener(e -> {
@@ -154,6 +159,9 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Load persistent data from file.
+	 */
 	private void load() {
 		JFileChooser chooser = new JFileChooser();
 		int value = chooser.showOpenDialog(this);
@@ -162,14 +170,18 @@ public class MainFrame extends JFrame {
 			try {
 				SerializerCore serializer = Persistence.get().serializer();
 				HTMObjectInput reader = serializer.getObjectInput(new FileInputStream(f));
-		        Network network = (Network)reader.readObject(Network.class);
-				setNetwork(network);
+		        CorvinaModel cm = (CorvinaModel) reader.readObject(CorvinaModel.class);
+				setNetwork(cm.getNetwork());
+				this.corvina.setClassifier((CLAClassifier) cm.getClassifier());
 			} catch (Exception e) {
 				FormUtils.showError("Cannot open file");
 			}
 		}
 	}
 
+	/**
+	 * Save model to file
+	 */
 	private void saveAs() {
 		JFileChooser chooser = new JFileChooser();
 		int value = chooser.showOpenDialog(this);
@@ -179,6 +191,9 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * Save model to file.
+	 */
 	private void save() {
 		if (this.networkFile  == null) {
 			saveAs();
@@ -188,8 +203,10 @@ public class MainFrame extends JFrame {
 		try {
 			SerializerCore serializer = Persistence.get().serializer();
 			HTMObjectOutput writer = serializer.getObjectOutput(new FileOutputStream(this.networkFile));
-			Network network = this.corvina.getNetwork();
-			writer.writeObject(network, Network.class);
+			CorvinaModel cm = new CorvinaModel();
+			cm.setNetwork(this.corvina.getNetwork());
+			cm.setClassifier(this.corvina.getClassifier());
+			writer.writeObject(cm, CorvinaModel.class);
             writer.flush();
             writer.close();
 		} catch (Exception e) {
@@ -197,6 +214,9 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * Create new network
+	 */
 	private void newNetwork() {
 		NetworkDialog dlg  =  this.context.getBean(NetworkDialog.class);
 		dlg.setLocationRelativeTo(this);
@@ -220,12 +240,17 @@ public class MainFrame extends JFrame {
 		
 	}
 	
-
+	/** 
+	 * Restet de image sensor.
+	 */
 	private void reset() {
 		if (this.imageSensorView.getModel() != null) 
 			this.imageSensorView.getModel().reset();
 	}
 
+	/**
+	 * Show current classication report.
+	 */
 	private void showClassifierReport() {
 		JTextArea area = new JTextArea();
 		area.setEditable(false);
@@ -236,6 +261,9 @@ public class MainFrame extends JFrame {
 		
 	}
 
+	/**
+	 * Refresh control values.
+	 */
 	public void refresh() {
 		this.networkView.refresh();
 		this.imageSensorView.refreshImage();
@@ -244,6 +272,10 @@ public class MainFrame extends JFrame {
 	// 	this.usingSDR.setSelected(this.corvina.isUsingSDR());
 	}
 	
+	/**
+	 * Update the hit label.
+	 * @param name name to set.
+	 */
 	public void setHit(String name) {
 		this.hit.setText(name == null ? UNKNOWN : name);
 	}

@@ -84,17 +84,17 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 	private Component createFormPanel() {
 		BoxFormBuilder fb = new BoxFormBuilder(FormUtils.createEmptyBorder(5));
 		fb.setDefaultSpace(10);
-		fb.row(50);
-		fb.add("Potential Radius", this.potentialRadius);
-		fb.add("SynPermTrimTreshold", this.synPermTrimTreshold);
-		fb.add("Local Area Density", this.localAreaDensity);
-		fb.add("Potential Ptc", this.potentialPct);
-		fb.row(50);
-		fb.add("Permanence Inc", this.permanenceIncrement);
-		fb.add("Permanence Dec", this.permanenceDecrement);
-		fb.add("SynPerm Connected", this.synPermConnected);
-		fb.add("Global Innibition", this.globalInhibition);
-		fb.row();
+//		fb.row(50);
+//		fb.add("Potential Radius", this.potentialRadius);
+//		fb.add("SynPermTrimTreshold", this.synPermTrimTreshold);
+//		fb.add("Local Area Density", this.localAreaDensity);
+//		fb.add("Potential Ptc", this.potentialPct);
+//		fb.row(50);
+//		fb.add("Permanence Inc", this.permanenceIncrement);
+//		fb.add("Permanence Dec", this.permanenceDecrement);
+//		fb.add("SynPerm Connected", this.synPermConnected);
+//		fb.add("Global Innibition", this.globalInhibition);
+//		fb.row();
 		fb.add(this.paintLayer);
 		
 		return fb.getForm();

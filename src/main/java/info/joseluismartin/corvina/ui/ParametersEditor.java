@@ -30,6 +30,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 	private JTextField maxNewSypnaseCount = new JTextField();
 	private JTextField seed = new JTextField();
 	private JTextField learningRadius = new JTextField();
+	private JTextField numActiveColumnsPerInhArea = new JTextField();
 	
 	/**
 	 * 
@@ -75,8 +76,8 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		fb.add(getMessage("maxNewSypnaseCount"), this.maxNewSypnaseCount);
 		fb.row();
 		fb.add(getMessage("seed"), this.seed);
+		fb.add(getMessage("numActiveColumnsPerInhArea"), this.numActiveColumnsPerInhArea);
 		fb.add(getMessage("globalInhibition"), this.globalInhibition);
-		fb.add("", new JLabel());
 		
 		return fb.getForm();
 	}
@@ -100,6 +101,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		params.setMaxNewSynapseCount(toInt(this.maxNewSypnaseCount.getText()));
 		params.setSeed(toInt(this.seed.getText()));
 		params.setLearningRadius(toInt(this.learningRadius.getText()));
+		params.setNumActiveColumnsPerInhArea(toDouble(this.numActiveColumnsPerInhArea.getText()));
 	}
 
 	@Override
@@ -122,6 +124,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		this.maxNewSypnaseCount.setText(String.valueOf(p.get(KEY.MAX_NEW_SYNAPSE_COUNT)));
 		this.seed.setText(String.valueOf(p.get(KEY.SEED)));
 		this.learningRadius.setText(String.valueOf(p.get(KEY.LEARNING_RADIUS)));
+		this.numActiveColumnsPerInhArea.setText(String.valueOf(p.get(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA)));
 	}
 	
 	private int toInt(String value) {

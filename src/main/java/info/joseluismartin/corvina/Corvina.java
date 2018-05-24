@@ -127,18 +127,18 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 		Map<String, Object> classification = new HashedMap<>();
 		classification.put("bucketIdx", this.imageSensor.getBucketIdx());
-		classification.put("actualValue", this.imageSensor.getClassifierName());
+		classification.put("actValue", this.imageSensor.getClassifierName());
 
 		int[] toClassify = this.usingSDR  ? t.getSDR() : t.getFeedForwardActiveColumns();
 		Classification<String> infered = 
 				this.classifier.compute(this.step, classification, toClassify, network.isLearn(), this.infer);
 
 		if (infered != null)
-			log.info("Seeing :" + infered.getMostProbableValue(0));
+			log.info("Seeing :" + infered.getMostProbableValue(1));
 
 		if (this.infer) {
 			Object real = this.imageSensor.getClassifierName();
-			Object predicted = infered.getMostProbableValue(0);
+			Object predicted = infered.getMostProbableValue(1);
 
 			if (real.equals(predicted)) { 
 				addHit(real);
@@ -150,7 +150,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		}
 
 		try {
-			SwingUtilities.invokeLater(() -> this.mainFrame.setHit(infered.getMostProbableValue(0)));
+			SwingUtilities.invokeLater(() -> this.mainFrame.setHit(infered.getMostProbableValue(1)));
 		} 
 		catch (Exception e) {
 			log.error(e);
@@ -198,6 +198,13 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	public CLAClassifier getClassifier() {
 		return this.classifier;
 	}
+	
+	/**
+	 * @param classifier the classifier to set
+	 */
+	public void setClassifier(CLAClassifier classifier) {
+		this.classifier = classifier;
+	}
 
 	/**
 	 * @return the network
@@ -217,6 +224,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 		this.network = network;
 		this.network.close();
+		
 		// this.networkSubscription = this.network.observe().subscribe(this);
 	}
 

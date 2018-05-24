@@ -60,27 +60,10 @@ public class ImageSensor implements Sensor<File> {
 	private Map<String, Integer> bucketIdxMap = new HashedMap<>();
 	private int maxBucket = 0;
 	private int currentBucket = 0;
-	
-	/**
-	 * @return the nameGenerator
-	 */
-	public NameGenerator getNameGenerator() {
-		return nameGenerator;
-	}
-
-	/**
-	 * @param nameGenerator the nameGenerator to set
-	 */
-	public void setNameGenerator(NameGenerator nameGenerator) {
-		this.nameGenerator = nameGenerator;
-	}
-
 	private boolean singleImage = true;
 	private List<ImageSensorListener> listeners = new ArrayList<>();
 
 	public ImageSensor(String path) {
-		// FIXME: Do a lazy load of image
-		loadImage(path);
 	}
 
 	/**
@@ -412,6 +395,20 @@ public class ImageSensor implements Sensor<File> {
 		else {
 			this.currentBucket = bucket;
 		}
+	}
+	
+	/**
+	 * @return the nameGenerator
+	 */
+	public NameGenerator getNameGenerator() {
+		return nameGenerator;
+	}
+
+	/**
+	 * @param nameGenerator the nameGenerator to set
+	 */
+	public void setNameGenerator(NameGenerator nameGenerator) {
+		this.nameGenerator = nameGenerator;
 	}
 
 }
