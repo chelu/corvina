@@ -71,7 +71,7 @@ public class ClassifierResult {
 		sb.append(this.steps);
 		sb.append(" hits: ");
 		sb.append(this.hits);
-		sb.append(" (" + (double) this.hits / this.steps * 100 + " %)");
+		sb.append(" (" + (double) this.hits / this.steps * 100 + " %) ");
 		sb.append("wrongs: ");
 		sb.append(this.wrongs);
 		

@@ -95,15 +95,6 @@ public class MainFrame extends JFrame {
 		this.networkView.refresh();
 		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.imageSensorView.getPanel(), 
 				this.networkView.getPanel());
-		// this.tab.add(IMAGE_SENSOR, this.imageSensorView.getPanel());
-		
-		// this.tab.add(NETWORK, this.networkView.getPanel());
-		// JTextArea area = new JTextArea();
-		// area.setRows(10);
-		// Logger.getRootLogger().addAppender(new TextAreaAppender(area));
-		// JScrollPane scroll = new JScrollPane(area);
-		// JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.tab, scroll);
-		// split.setDividerLocation(0.75d);
 		getContentPane().add(split, BorderLayout.CENTER);
 		setSize(new Dimension(1024, 768));
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -231,8 +222,6 @@ public class MainFrame extends JFrame {
 	
 
 	private void reset() {
-		this.corvina.getClassifier().reset();
-
 		if (this.imageSensorView.getModel() != null) 
 			this.imageSensorView.getModel().reset();
 	}
@@ -240,7 +229,7 @@ public class MainFrame extends JFrame {
 	private void showClassifierReport() {
 		JTextArea area = new JTextArea();
 		area.setEditable(false);
-		area.setText(this.corvina.getClassifier().getReport());
+		area.setText(this.corvina.getReport());
 		SimpleDialog dlg = new SimpleDialog(this, new JScrollPane(area), "Classifer Report");
 		dlg.setSize(600, 600);
 		dlg.setVisible(true);

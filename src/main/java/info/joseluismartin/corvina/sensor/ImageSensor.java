@@ -12,14 +12,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.numenta.nupic.FieldMetaType;
 import org.numenta.nupic.network.sensor.MetaStream;
+import org.numenta.nupic.network.sensor.Sensor;
 import org.numenta.nupic.network.sensor.SensorFlags;
 import org.numenta.nupic.network.sensor.SensorParams;
 import org.numenta.nupic.network.sensor.ValueList;
@@ -33,7 +36,7 @@ import info.joseluismartin.corvina.image.ImageUtils;
  * @author Jose Luis Martin
  * @since 1.0
  */
-public class ImageSensor {
+public class ImageSensor implements Sensor<File> {
 
 	private static final Log log = LogFactory.getLog(ImageSensor.class);
 	
@@ -54,6 +57,9 @@ public class ImageSensor {
 	private boolean inverse = false;
 	private File currentFile;
 	private NameGenerator nameGenerator = new FileNameGenerator();
+	private Map<String, Integer> bucketIdxMap = new HashedMap<>();
+	private int maxBucket = 0;
+	private int currentBucket = 0;
 	
 	/**
 	 * @return the nameGenerator
@@ -96,6 +102,7 @@ public class ImageSensor {
 		
 		this.imageName = file.getName();
 		this.currentFile = file;
+		updateBucketMap();
 		
 		// convert to gray scale
 		this.image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -250,8 +257,8 @@ public class ImageSensor {
 	public ValueList getMetaInfo() {
 		if (this.valueList == null) {
 			ListValueList vl = new ListValueList();
-			vl.addTuple(new Tuple("pixel"));
-			vl.addTuple(new Tuple(FieldMetaType.INTEGER));
+			vl.addTuple(new Tuple("image"));
+			vl.addTuple(new Tuple(FieldMetaType.DARR));
 			vl.addTuple(new Tuple(SensorFlags.B));
 			this.valueList = vl;
 		}
@@ -383,6 +390,28 @@ public class ImageSensor {
 			return this.nameGenerator.createName(this.currentFile);
 		
 		return this.imageName;
+	}
+
+	@Override
+	public SensorParams getSensorParams() {
+		return null;
+	}
+
+	public int getBucketIdx() {
+		return currentBucket;
+	}
+	
+	private void updateBucketMap() {
+		Integer bucket = this.bucketIdxMap.get(getClassifierName());
+		
+		if (bucket == null) {
+			this.currentBucket = this.maxBucket;
+			this.bucketIdxMap.put(getClassifierName(), currentBucket);
+			this.maxBucket++;
+		}
+		else {
+			this.currentBucket = bucket;
+		}
 	}
 
 }
