@@ -25,4 +25,9 @@ public class InverseFilter extends ImageFilter {
 		
 		super.setPixels(x, y, w, h, model, tx, off, scansize);
 	}
+	
+	@Override
+	public String toString() {
+		return "Inverse";
+	}
 }

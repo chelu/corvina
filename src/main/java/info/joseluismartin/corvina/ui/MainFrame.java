@@ -2,6 +2,7 @@ package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -246,6 +247,7 @@ public class MainFrame extends JFrame {
 	private void reset() {
 		if (this.imageSensorView.getModel() != null) 
 			this.imageSensorView.getModel().reset();
+			this.corvina.getStats().clear();
 	}
 
 	/**
@@ -253,12 +255,13 @@ public class MainFrame extends JFrame {
 	 */
 	private void showClassifierReport() {
 		JTextArea area = new JTextArea();
+		area.setMargin(new Insets(10, 10, 10, 10));
 		area.setEditable(false);
 		area.setText(this.corvina.getReport());
 		SimpleDialog dlg = new SimpleDialog(this, new JScrollPane(area), "Classifer Report");
+		dlg.setLocationRelativeTo(this);
 		dlg.setSize(600, 600);
 		dlg.setVisible(true);
-		
 	}
 
 	/**

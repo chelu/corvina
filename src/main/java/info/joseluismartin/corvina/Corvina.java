@@ -2,7 +2,6 @@ package info.joseluismartin.corvina;
 
 
 import java.awt.EventQueue;
-import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -169,7 +168,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	private void addHit(Object real) {
 		if (!this.stats.containsKey(real))
-			this.stats.put(real, new ClassifierResult());
+			this.stats.put(real, new ClassifierResult(real.toString()));
 
 		ClassifierResult result = this.stats.get(real);
 		result.addHit();
@@ -249,7 +248,21 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		this.usingSDR = usingSDR;
 	}
 
+	public String getReport() {
+		StringBuffer sb = new StringBuffer();
 
+		for (ClassifierResult r : this.stats.values()) {
+			sb.append(r.toString());
+			sb.append("\n");
+		}
+
+		return sb.toString();
+	}
+
+	public Map<Object, ClassifierResult> getStats() {
+		return this.stats;
+	}
+	
 	public static void main(String[] args) {
 		log.info("Starting corvina...");
 
@@ -277,16 +290,5 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		}
 
 		ctx.close();
-	}
-
-	public String getReport() {
-		StringBuffer sb = new StringBuffer();
-
-		for (ClassifierResult r : this.stats.values()) {
-			sb.append(r.toString());
-			sb.append("\n");
-		}
-
-		return sb.toString();
 	}
 }
