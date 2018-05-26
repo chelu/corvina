@@ -27,7 +27,6 @@ public class LayerEditor extends AbstractView<LayerData> {
 	
 	public LayerEditor() {
 		this(new LayerData());
-		this.propertiesButton.addActionListener(e -> showProperties());
 	}
 
 	/**
@@ -35,6 +34,8 @@ public class LayerEditor extends AbstractView<LayerData> {
 	 */
 	public LayerEditor(LayerData model) {
 		super(model);
+		this.propertiesButton.addActionListener(e -> showProperties());
+		this.usingSpatialPooler.setSelected(true);
 	}
 
 	@Override
