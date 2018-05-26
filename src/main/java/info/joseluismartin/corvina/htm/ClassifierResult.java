@@ -1,5 +1,6 @@
 package info.joseluismartin.corvina.htm;
 
+import java.text.DecimalFormat;
 
 /**
  * Result from Classification.
@@ -71,7 +72,8 @@ public class ClassifierResult {
 		sb.append(this.steps);
 		sb.append(" hits: ");
 		sb.append(this.hits);
-		sb.append(" (" + (double) this.hits / this.steps * 100 + " %) ");
+		DecimalFormat  df  = new DecimalFormat("#.00");
+		sb.append(" (" + df.format((double) this.hits / this.steps * 100) + " %) ");
 		sb.append("wrongs: ");
 		sb.append(this.wrongs);
 		

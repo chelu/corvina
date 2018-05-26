@@ -55,33 +55,19 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 	private List<BufferedImageOp> availableFilters = new ArrayList<>();
 	private Selector<ImageFilter> filters;
 	private List<ImageFilter> imageFilters = new ArrayList<>();
-	/**
-	 * @return the imageFilters
-	 */
-	public List<ImageFilter> getImageFilters() {
-		return imageFilters;
-	}
-
-	/**
-	 * @param imageFilters the imageFilters to set
-	 */
-	public void setImageFilters(List<ImageFilter> imageFilters) {
-		this.imageFilters = imageFilters;
-	}
-
 	private Selector<BufferedImageOp> dinamycFilters;
 	private JList<String> imagesToLoad = new JList<>();
 	private JTextField imageCicles = new JTextField();
 	private JButton saveButton = new JButton("Save");
 	private JCheckBox display = new JCheckBox("Paint");
 	private JLabel imageName = new JLabel();
-	
 	private Box leftPanel;
 	private JComponent northPanel;
 	private JButton applyFilterButton;
 	private JButton chooserButton;
 	private File lastDirectory;
 	private JComboBox<NameGenerator> nameGenerator = new JComboBox<>();
+	private JTextField repeatCicles = new JTextField();
 	
 	@PostConstruct
 	public void init() {
@@ -97,8 +83,8 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		this.chooserButton.addActionListener(e -> chooseImageFile());
 		this.saveButton.addActionListener(e -> update());
 		this.saveButton.setAlignmentY(Component.LEFT_ALIGNMENT);
-		this.nameGenerator.addItem(new FileNameGenerator());
 		this.nameGenerator.addItem(new DirectoryNameGenerator());
+		this.nameGenerator.addItem(new FileNameGenerator());
 		this.nameGenerator.addActionListener(l -> 
 			getModel().setNameGenerator((NameGenerator) nameGenerator.getSelectedItem()));
 		
@@ -146,7 +132,7 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		BoxFormBuilder fb = new BoxFormBuilder(BorderFactory.createCompoundBorder(
 				FormUtils.createEmptyBorder(5), FormUtils.createEmptyBorder(5)));
 		
-		//fb.setDebug(true);	
+		// fb.setDebug(true);	
 		fb.row();
 		fb.add(new TitledSeparator("Load Files"));
 		fb.row();
@@ -161,7 +147,8 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		fb.row();
 		fb.startBox();
 		fb.row();
-		fb.add(getMessage("imageCicles"), this.imageCicles);
+		fb.add(getMessage("Image"), this.imageCicles);
+		fb.add(getMessage("Cicles"), this.repeatCicles);
 		fb.add(this.saveButton);
 		fb.endBox();
 		
@@ -300,6 +287,20 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 	public void finished() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/**
+	 * @return the imageFilters
+	 */
+	public List<ImageFilter> getImageFilters() {
+		return imageFilters;
+	}
+
+	/**
+	 * @param imageFilters the imageFilters to set
+	 */
+	public void setImageFilters(List<ImageFilter> imageFilters) {
+		this.imageFilters = imageFilters;
 	}
 
 

@@ -135,8 +135,10 @@ public class LayerView extends AbstractView<Layer<?>> implements ChangeListener 
 			this.temporal.repaint();
 		}
 		
-		this.spatial.setValues(layer.getFeedForwardActiveColumns());
-		this.spatial.repaint();
+		if (layer.getInference() != null) {
+			this.spatial.setValues(layer.getFeedForwardActiveColumns());
+			this.spatial.repaint();
+		}
 	}
 
 	@Override

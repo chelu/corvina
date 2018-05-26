@@ -92,12 +92,14 @@ public class NetworkView extends AbstractView<Network> {
 	
 	protected List<Layer<?>> getLayers() {
 		List<Layer<?>> layers = new ArrayList<>();
-		Region region = getModel().getTail();
-		Layer<?> layer = region.getTail();
 		
-		while (layer != null) {
-			layers.add(layer);
-			layer = layer.getNext();
+		for (Region region : this.getModel().getRegions()) {
+			Layer<?> layer = region.getTail();
+		
+			while (layer != null) {
+				layers.add(layer);
+				layer = layer.getNext();
+			}
 		}
 		
 		return layers;

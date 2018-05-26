@@ -272,7 +272,8 @@ public class MainFrame extends JFrame {
 		this.imageSensorView.refreshImage();
 		this.startButton.setSelected(this.corvina.isRunning());
 		this.startButton.setText(corvina.isRunning() ? STOP : START);
-	// 	this.usingSDR.setSelected(this.corvina.isUsingSDR());
+	 	this.usingSDR.setSelected(this.corvina.isUsingSDR());
+	 	this.learn.setSelected(this.corvina.getNetwork().isLearn());
 	}
 	
 	/**

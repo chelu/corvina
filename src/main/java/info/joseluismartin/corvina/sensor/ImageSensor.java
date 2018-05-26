@@ -62,6 +62,7 @@ public class ImageSensor implements Sensor<File> {
 	private int currentBucket = 0;
 	private boolean singleImage = true;
 	private List<ImageSensorListener> listeners = new ArrayList<>();
+	private int repeatCicles = 1;
 
 	public ImageSensor(String path) {
 	}
@@ -209,7 +210,7 @@ public class ImageSensor implements Sensor<File> {
 		
 		if (this.currentImage == this.imagesToLoad.size()) {
 			reset();
-			return false;
+			return repeatCicles-- > 0;
 		}
 		
 		if (this.imageStep == 0)
@@ -409,6 +410,20 @@ public class ImageSensor implements Sensor<File> {
 	 */
 	public void setNameGenerator(NameGenerator nameGenerator) {
 		this.nameGenerator = nameGenerator;
+	}
+	
+	/**
+	 * @return the repeatCicles
+	 */
+	public int getRepeatCicles() {
+		return repeatCicles;
+	}
+
+	/**
+	 * @param repeatCicles the repeatCicles to set
+	 */
+	public void setRepeatCicles(int repeatCicles) {
+		this.repeatCicles = repeatCicles;
 	}
 
 }

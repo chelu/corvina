@@ -24,6 +24,7 @@ import org.jdal.swing.form.SimpleBoxFormBuilder;
 import org.numenta.nupic.Parameters;
 import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.algorithms.TemporalMemory;
+import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
 
@@ -67,7 +68,7 @@ public class NetworkEditor extends AbstractView<Network> implements ActionListen
 			for (int i = 0; i < nLayers; i++) {
 				LayerEditor le = new LayerEditor();
 				layers.add(le);
-				fb.row();
+				fb.row(60);
 				fb.add(le.getPanel());
 			}
 			this.layerPanel.removeAll();
@@ -109,43 +110,45 @@ public class NetworkEditor extends AbstractView<Network> implements ActionListen
 		}
 		
 		Network network = new Network("CORVINA", networkParams);
-		Region region = new Region("Region", network);
-
+		
+		int regionIdx = 1;
+		
 		for (LayerEditor le : layers) {
 			le.update();
 			Parameters p = le.getModel().getParameters();
 			p.setColumnDimensions(le.getModel().getColumnsDimensions());
 			p.setInputDimensions(le.getModel().getInputDimensions());
-			region.add(Network.createLayer(le.getModel().getName(), p)
-					.add(new SpatialPooler())
-					.add(new TemporalMemory()));
+			Layer<?> layer = Network.createLayer(le.getModel().getName(), p);
 			
+			if (le.isUsingSpatialPooler())
+				layer.add(new SpatialPooler());
+			
+			if (le.isUsingTemporalMemory())
+				layer.add(new TemporalMemory());
+			
+			Region region = new Region("R" + regionIdx++, network);
+			region.add(layer);
+			network.add(region);
 					
 		}
+		
+		List<Region> regions = network.getRegions();
 
-		if (this.layers.size() > 1) {
-			for (int i = 0; i < this.layers.size() - 1; i++) {
-				String nameDown = layers.get(i).getModel().getName();
-				String nameUp = layers.get(i+1).getModel().getName();
+		if (regions.size() > 1) {
+			for (int i = 0; i < regions.size() - 1; i++) {
+				String nameDown = regions.get(i).getName();
+				String nameUp = regions.get(i+1).getName();
 
 				if (log.isDebugEnabled()) 
-					log.debug("Connecting layer [" + nameDown + "] to layer [" + nameUp + "].");
+					log.debug("Connecting region [" + nameDown + "] to region [" + nameUp + "].");
 
-				region.connect(nameUp, nameDown);
+				network.connect(nameUp, nameDown);
 			}
 		}
 		
-		if (this.layers.size() > 1) {
-			region.lookup(this.layers.get(this.layers.size() - 1).getModel().getName())
-				.add(new TemporalMemory());
-		}
-		
-		network.add(region);
 		
 		return network;
 	}
-
-	
 	
 	public static final void main(String[] args) {
 		JFrame f = new JFrame();

@@ -3,6 +3,7 @@ package info.joseluismartin.corvina;
 
 import java.awt.EventQueue;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -18,6 +19,7 @@ import org.numenta.nupic.algorithms.CLAClassifier;
 import org.numenta.nupic.algorithms.Classification;
 import org.numenta.nupic.network.Inference;
 import org.numenta.nupic.network.Network;
+import org.numenta.nupic.util.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -29,7 +31,7 @@ import rx.Subscriber;
 import rx.Subscription;
 
 /**
- * Application launcher. Load Spring context and start the Network.
+ * Application launcher. Load Spring context and start and control the Network.
  * 
  * @author Jose Luis Martin
  * @since 1.0
@@ -52,6 +54,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private Subscription networkSubscription;
 	private boolean usingSDR = true;
 	private Map<Object, ClassifierResult> stats = new HashMap<>();
+	private int[] lastInput;
 
 	public void start() {
 		this.running = true;
@@ -74,10 +77,14 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 				this.running = false;
 				return;
 			}
+			
+			if (Arrays.equals(input, this.lastInput))
+				log.warn("SAME INPUT");
+			
+			this.lastInput = input;
 
 			long millis = System.currentTimeMillis();
 			try {
-
 				if (input.length  == this.network.getTail().getTail().getConnections().getNumInputs()) {
 					this.network.compute(input);
 					log.info("Step [" + step +"] " + (double)(System.currentTimeMillis() - millis) / 1000 + " seconds");
@@ -121,14 +128,16 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	@Override
 	public void onNext(Inference t) {
 		log.info("On Next");
-		log.info("Sparse Actives: " + Arrays.toString(t.getFeedForwardSparseActives()));
-		log.info("SDR: " + Arrays.toString(t.getSDR()));
+		// log.info("Sparse Actives: " + Arrays.toString(t.getFeedForwardSparseActives()));
+		// log.info("SDR: " + Arrays.toString(t.getSDR()));
+		
 
 		Map<String, Object> classification = new HashedMap<>();
 		classification.put("bucketIdx", this.imageSensor.getBucketIdx());
 		classification.put("actValue", this.imageSensor.getClassifierName());
 
 		int[] toClassify = this.usingSDR  ? t.getSDR() : t.getFeedForwardActiveColumns();
+		log.info("Sparse Actives:" + Arrays.toString(ArrayUtils.where(toClassify, ArrayUtils.WHERE_1)));
 		Classification<String> infered = 
 				this.classifier.compute(this.step, classification, toClassify, network.isLearn(), this.infer);
 
@@ -158,7 +167,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	private void addWrong(Object real) {
 		if (!this.stats.containsKey(real))
-			this.stats.put(real, new ClassifierResult());
+			this.stats.put(real, new ClassifierResult(real.toString()));
 
 		ClassifierResult result = this.stats.get(real);
 		result.addWrong();
