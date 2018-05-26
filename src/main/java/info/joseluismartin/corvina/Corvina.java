@@ -78,9 +78,9 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 				return;
 			}
 			
-			if (Arrays.equals(input, this.lastInput))
-				log.warn("SAME INPUT");
-			
+//			if (Arrays.equals(input, this.lastInput))
+//				log.warn("SAME INPUT");
+//			
 			this.lastInput = input;
 
 			long millis = System.currentTimeMillis();
@@ -135,9 +135,12 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		Map<String, Object> classification = new HashedMap<>();
 		classification.put("bucketIdx", this.imageSensor.getBucketIdx());
 		classification.put("actValue", this.imageSensor.getClassifierName());
-
 		int[] toClassify = this.usingSDR  ? t.getSDR() : t.getFeedForwardActiveColumns();
-		log.info("Sparse Actives:" + Arrays.toString(ArrayUtils.where(toClassify, ArrayUtils.WHERE_1)));
+		// Ensure that array is sparse, note that inference don't update sparses well.
+		if (!ArrayUtils.isSparse(toClassify))
+			toClassify = ArrayUtils.where(toClassify, ArrayUtils.WHERE_1);
+		log.info("Sparse Actives:" + Arrays.toString(toClassify));
+		// Do clasification
 		Classification<String> infered = 
 				this.classifier.compute(this.step, classification, toClassify, network.isLearn(), this.infer);
 
