@@ -210,7 +210,7 @@ public class ImageSensor implements Sensor<File> {
 		
 		if (this.currentImage == this.imagesToLoad.size()) {
 			reset();
-			return repeatCicles-- > 0;
+			return repeatCicles-- > 1;
 		}
 		
 		if (this.imageStep == 0)

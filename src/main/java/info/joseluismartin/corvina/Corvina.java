@@ -3,7 +3,6 @@ package info.joseluismartin.corvina;
 
 import java.awt.EventQueue;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -15,14 +14,16 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdal.swing.ApplicationContextGuiFactory;
-import org.numenta.nupic.algorithms.CLAClassifier;
 import org.numenta.nupic.algorithms.Classification;
+import org.numenta.nupic.algorithms.Classifier;
+import org.numenta.nupic.algorithms.SDRClassifier;
 import org.numenta.nupic.network.Inference;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.util.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import gnu.trove.list.array.TIntArrayList;
 import info.joseluismartin.corvina.config.CorvinaConfig;
 import info.joseluismartin.corvina.htm.ClassifierResult;
 import info.joseluismartin.corvina.sensor.ImageSensor;
@@ -46,7 +47,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private MainFrame mainFrame;
 	@Autowired 
 	private ImageSensor imageSensor;
-	private CLAClassifier classifier = new CLAClassifier();
+	private Classifier classifier = new SDRClassifier();
 	private volatile int step;
 	private volatile boolean running;
 	private Executor executor = Executors.newSingleThreadExecutor();
@@ -161,7 +162,15 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		}
 
 		try {
-			SwingUtilities.invokeLater(() -> this.mainFrame.setHit(infered.getMostProbableValue(1)));
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					if (infered != null)
+						mainFrame.setHit(infered.getMostProbableValue(1));
+				}
+			});
+				
 		} 
 		catch (Exception e) {
 			log.error(e);
@@ -206,14 +215,14 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		this.infer = infer;
 	}
 
-	public CLAClassifier getClassifier() {
+	public Classifier getClassifier() {
 		return this.classifier;
 	}
 	
 	/**
 	 * @param classifier the classifier to set
 	 */
-	public void setClassifier(CLAClassifier classifier) {
+	public void setClassifier(Classifier classifier) {
 		this.classifier = classifier;
 	}
 
