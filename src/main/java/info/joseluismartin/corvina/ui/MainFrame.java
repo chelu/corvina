@@ -1,7 +1,9 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.io.File;
 import java.io.FileInputStream;
@@ -260,11 +262,12 @@ public class MainFrame extends JFrame {
 	 */
 	private void showClassifierReport() {
 		JTextArea area = new JTextArea();
-		area.setMargin(new Insets(10, 10, 10, 10));
+		area.setMargin(new Insets(20, 20, 20, 20));
 		area.setEditable(false);
+		area.setFont(Font.getFont(Font.MONOSPACED));
 		area.setText(this.corvina.getReport());
 		SimpleDialog dlg = new SimpleDialog(this, new JScrollPane(area), "Classifer Report");
-		dlg.setLocationRelativeTo(this);
+		dlg.setLocationRelativeTo(null);
 		dlg.setSize(600, 600);
 		dlg.setVisible(true);
 	}
