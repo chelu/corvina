@@ -6,13 +6,10 @@ import java.awt.Insets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -176,10 +173,11 @@ public class MainFrame extends JFrame {
 			File f = chooser.getSelectedFile();
 			try {
 				SerializerCore serializer = Persistence.get().serializer();
+				serializer.registerClass(CorvinaModel.class);
 				HTMObjectInput reader = serializer.getObjectInput(new FileInputStream(f));
 		        CorvinaModel cm = (CorvinaModel) reader.readObject(CorvinaModel.class);
 				setNetwork(cm.getNetwork());
-				this.corvina.setClassifier((CLAClassifier) cm.getClassifier());
+				this.corvina.setClassifier(cm.getClassifier());
 			} catch (Exception e) {
 				FormUtils.showError("Cannot open file");
 			}
@@ -209,6 +207,7 @@ public class MainFrame extends JFrame {
 
 		try {
 			SerializerCore serializer = Persistence.get().serializer();
+			serializer.registerClass(CorvinaModel.class);
 			HTMObjectOutput writer = serializer.getObjectOutput(new FileOutputStream(this.networkFile));
 			CorvinaModel cm = new CorvinaModel();
 			cm.setNetwork(this.corvina.getNetwork());
