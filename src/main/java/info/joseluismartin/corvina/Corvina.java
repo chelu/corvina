@@ -265,12 +265,21 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 
 	public String getReport() {
 		StringBuffer sb = new StringBuffer();
+		long total = 0, wrong = 0;
+		
 
 		for (ClassifierResult r : this.stats.values()) {
+			total += r.getSteps();
+			wrong += r.getWrongs();
 			sb.append(r.toString());
 			sb.append("\n");
 		}
-
+		
+		double error = (double) (wrong / total * 100); 
+		sb.append("\n\n Error: ");
+		sb.append(error);
+		sb.append(" %");
+		
 		return sb.toString();
 	}
 

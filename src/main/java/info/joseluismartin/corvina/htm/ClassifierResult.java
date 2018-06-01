@@ -64,6 +64,20 @@ public class ClassifierResult {
 		this.hits = hits;
 	}
 	
+	/**
+	 * @return the wrongs
+	 */
+	public long getWrongs() {
+		return wrongs;
+	}
+
+	/**
+	 * @param wrongs the wrongs to set
+	 */
+	public void setWrongs(long wrongs) {
+		this.wrongs = wrongs;
+	}
+	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(name);
