@@ -41,7 +41,7 @@ public class LayerEditor extends AbstractView<LayerData> {
 	@Override
 	protected JComponent buildPanel() {
 		BoxFormBuilder fb = new BoxFormBuilder();
-		fb.setDebug(true);
+		fb.setDebug(false);
 		fb.row();
 		fb.setFixedHeight(true);
 		fb.add(getMessage("name"), this.name);

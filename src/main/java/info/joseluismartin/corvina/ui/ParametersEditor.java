@@ -16,7 +16,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 	private JTextField cellsPerColumn = new JTextField();
 	private JTextField potentialRadius = new JTextField();
 	private JTextField synPermConnected = new JTextField();
-	private JTextField synPermTrimThresold = new JTextField();
+	private JTextField synPermTrimThreshold = new JTextField();
 	private JCheckBox globalInhibition = new JCheckBox();
 	private JTextField permanenceDecrement = new JTextField();
 	private JTextField permanenceIncrement = new JTextField();
@@ -31,6 +31,18 @@ public class ParametersEditor extends AbstractView<Parameters> {
 	private JTextField seed = new JTextField();
 	private JTextField learningRadius = new JTextField();
 	private JTextField numActiveColumnsPerInhArea = new JTextField();
+	
+	private JTextField maxSynapsesPerSegment = new JTextField();
+	private JTextField maxSegmentsPerCell = new JTextField();
+	private JTextField inhibitionRadius = new JTextField();
+	private JTextField stimulusThreshold = new JTextField();
+	private JTextField synPermInactiveDec = new JTextField();
+	private JTextField synPermActiveInc = new JTextField();
+	private JTextField synPermBelowStimulusInc = new JTextField();
+	private JTextField minPctOverlapDutyCycles = new JTextField();
+	private JTextField minPctActiveDutyCycles = new JTextField();
+	private JTextField dutyCyclePeriod = new JTextField();
+	
 	
 	/**
 	 * 
@@ -53,13 +65,14 @@ public class ParametersEditor extends AbstractView<Parameters> {
 	@Override
 	protected JComponent buildPanel() {
 		BoxFormBuilder fb = new BoxFormBuilder();
+		fb.setDebug(true);
 		fb.row();
 		fb.setDebug(false);
 		fb.add(getMessage("cellPerColumn"), this.cellsPerColumn);
 		fb.add(getMessage("potentialRadius"), this.potentialRadius);
 		fb.add(getMessage("symPermConnected"), this.synPermConnected);
 		fb.row();
-		fb.add(getMessage("symPermTrimThresold"), this.synPermTrimThresold);
+		fb.add(getMessage("synPermTrimThreshold"), this.synPermTrimThreshold);
 		fb.add(getMessage("learningRadius"), this.learningRadius);
 		fb.add(getMessage("permanenceDecrement"),this.permanenceDecrement);
 		fb.row();
@@ -78,6 +91,22 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		fb.add(getMessage("seed"), this.seed);
 		fb.add(getMessage("numActiveColumnsPerInhArea"), this.numActiveColumnsPerInhArea);
 		fb.add(getMessage("globalInhibition"), this.globalInhibition);
+		fb.row();
+		fb.add(getMessage("maxSynapsesPerSegment"), this.maxSynapsesPerSegment);
+		fb.add(getMessage("maxSegmentsPerCell"), this.maxSegmentsPerCell);
+		fb.add(getMessage("inhibitionRadius"), this.inhibitionRadius);
+		fb.row();
+		fb.add(getMessage("stimulusThreshold"), this.stimulusThreshold);
+		fb.add(getMessage("synPermBelowStimulusInc"), this.synPermBelowStimulusInc);
+		fb.add(getMessage("synPermActiveInc"), this.synPermActiveInc);
+		fb.row();
+		fb.add(getMessage("synPermInactiveDec"), this.synPermInactiveDec);
+		fb.add(getMessage("minPctOverlapDutyCycles"), this.minPctOverlapDutyCycles);
+		fb.add(getMessage("minPctActiveDutyCycles"), this.minPctActiveDutyCycles);
+		fb.row();
+		fb.add(getMessage("dutyCyclePeriod"), this.dutyCyclePeriod);
+		fb.add("", new JLabel(""));
+		fb.add("", new JLabel(""));
 		
 		return fb.getForm();
 	}
@@ -88,7 +117,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		params.setCellsPerColumn(toInt(this.cellsPerColumn.getText()));
 		params.setPotentialRadius(toInt(this.potentialRadius.getText()));
 		params.setSynPermConnected(toDouble(this.synPermConnected.getText()));
-		params.setSynPermTrimThreshold(toDouble(this.synPermTrimThresold.getText()));
+		params.setSynPermTrimThreshold(toDouble(this.synPermTrimThreshold.getText()));
 		params.setGlobalInhibition(this.globalInhibition.isSelected());
 		params.setPermanenceDecrement(toDouble(this.permanenceDecrement.getText()));
 		params.setMaxBoost(toDouble(this.maxBoost.getText()));
@@ -102,6 +131,16 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		params.setSeed(toInt(this.seed.getText()));
 		params.setLearningRadius(toInt(this.learningRadius.getText()));
 		params.setNumActiveColumnsPerInhArea(toDouble(this.numActiveColumnsPerInhArea.getText()));
+		params.setMaxSynapsesPerSegment(toInt(this.maxSynapsesPerSegment.getText()));
+		params.setMaxSegmentsPerCell(toInt(this.maxSegmentsPerCell.getText()));
+		params.setInhibitionRadius(toInt(this.inhibitionRadius.getText()));
+		params.setStimulusThreshold(toDouble(this.stimulusThreshold.getText()));
+		params.setSynPermActiveInc(toDouble(synPermActiveInc.getText()));
+		params.setSynPermInactiveDec(toDouble(this.synPermInactiveDec.getText()));
+		params.setSynPermBelowStimulusInc(toDouble(this.synPermBelowStimulusInc.getText()));
+		params.setMinPctOverlapDutyCycles(toDouble(this.minPctOverlapDutyCycles.getText()));
+		params.setMinPctActiveDutyCycles(toDouble(this.minPctActiveDutyCycles.getText()));
+		params.setDutyCyclePeriod(toInt(this.dutyCyclePeriod.getText()));
 	}
 
 	@Override
@@ -110,7 +149,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		this.cellsPerColumn.setText(String.valueOf(p.get(KEY.CELLS_PER_COLUMN)));
 		this.potentialRadius.setText(String.valueOf(p.get(KEY.POTENTIAL_RADIUS)));
 		this.synPermConnected.setText(String.valueOf(p.get(KEY.SYN_PERM_CONNECTED)));
-		this.synPermTrimThresold.setText(String.valueOf(p.get(KEY.SYN_PERM_TRIM_THRESHOLD)));
+		this.synPermTrimThreshold.setText(String.valueOf(p.get(KEY.SYN_PERM_TRIM_THRESHOLD)));
 		this.globalInhibition.setSelected((boolean) p.get(KEY.GLOBAL_INHIBITION));
 		this.permanenceDecrement.setText(String.valueOf(p.get(KEY.PERMANENCE_DECREMENT)));
 		this.permanenceIncrement.setText(String.valueOf(p.get(KEY.PERMANENCE_INCREMENT)));
@@ -125,6 +164,16 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		this.seed.setText(String.valueOf(p.get(KEY.SEED)));
 		this.learningRadius.setText(String.valueOf(p.get(KEY.LEARNING_RADIUS)));
 		this.numActiveColumnsPerInhArea.setText(String.valueOf(p.get(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA)));
+		this.maxSynapsesPerSegment.setText(String.valueOf(p.get(KEY.MAX_SYNAPSES_PER_SEGMENT)));
+		this.maxSegmentsPerCell.setText(String.valueOf(p.get(KEY.MAX_SEGMENTS_PER_CELL)));
+		this.inhibitionRadius.setText(String.valueOf(p.get(KEY.INHIBITION_RADIUS)));
+		this.stimulusThreshold.setText(String.valueOf(p.get(KEY.STIMULUS_THRESHOLD)));
+		this.synPermActiveInc.setText(String.valueOf(p.get(KEY.SYN_PERM_ACTIVE_INC)));
+		this.synPermInactiveDec.setText(String.valueOf(p.get(KEY.SYN_PERM_INACTIVE_DEC)));
+		this.synPermBelowStimulusInc.setText(String.valueOf(p.get(KEY.SYN_PERM_BELOW_STIMULUS_INC)));
+		this.minPctActiveDutyCycles.setText(String.valueOf(p.get(KEY.MIN_PCT_ACTIVE_DUTY_CYCLES)));
+		this.minPctOverlapDutyCycles.setText(String.valueOf(p.get(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES)));
+		this.dutyCyclePeriod.setText(String.valueOf(p.get(KEY.DUTY_CYCLE_PERIOD)));
 	}
 	
 	private int toInt(String value) {
@@ -152,6 +201,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		pe.init();
 		
 		f.getContentPane().add(pe.getPanel());
+		pe.refresh();
 		f.setVisible(true);
 	}
 }

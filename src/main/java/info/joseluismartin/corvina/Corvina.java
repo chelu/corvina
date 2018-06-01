@@ -23,7 +23,6 @@ import org.numenta.nupic.util.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import gnu.trove.list.array.TIntArrayList;
 import info.joseluismartin.corvina.config.CorvinaConfig;
 import info.joseluismartin.corvina.htm.ClassifierResult;
 import info.joseluismartin.corvina.sensor.ImageSensor;
@@ -55,8 +54,8 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	private Subscription networkSubscription;
 	private boolean usingSDR = true;
 	private Map<Object, ClassifierResult> stats = new HashMap<>();
-	private int[] lastInput;
-
+	private volatile boolean classifierLearn;
+	
 	public void start() {
 		this.running = true;
 		executor.execute(this);
@@ -79,11 +78,6 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 				return;
 			}
 			
-//			if (Arrays.equals(input, this.lastInput))
-//				log.warn("SAME INPUT");
-//			
-			this.lastInput = input;
-
 			long millis = System.currentTimeMillis();
 			try {
 				if (input.length  == this.network.getTail().getTail().getConnections().getNumInputs()) {
@@ -143,7 +137,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		log.info("Sparse Actives:" + Arrays.toString(toClassify));
 		// Do clasification
 		Classification<String> infered = 
-				this.classifier.compute(this.step, classification, toClassify, network.isLearn(), this.infer);
+				this.classifier.compute(this.step, classification, toClassify, this.classifierLearn, this.infer);
 
 		if (infered != null)
 			log.info("Seeing :" + infered.getMostProbableValue(1));
@@ -283,6 +277,21 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	public Map<Object, ClassifierResult> getStats() {
 		return this.stats;
 	}
+	
+	/**
+	 * @return the classifierLear
+	 */
+	public boolean isClassifierLearn() {
+		return classifierLearn;
+	}
+
+	/**
+	 * @param classifierLear the classifierLear to set
+	 */
+	public void setClassifierLearn(boolean classifierLearn) {
+		this.classifierLearn = classifierLearn;
+	}
+
 	
 	public static void main(String[] args) {
 		log.info("Starting corvina...");

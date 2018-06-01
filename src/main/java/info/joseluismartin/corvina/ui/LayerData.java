@@ -14,24 +14,25 @@ public class LayerData {
 	}
 	
 	private void configureParamters(Parameters p) {
-		p.setCellsPerColumn(32);
-		p.setPotentialRadius(8);
-		p.setSynPermConnected(0.2);
-		p.setSynPermTrimThreshold(0.1d);
-		p.setGlobalInhibition(true);
-		p.setPermanenceDecrement(0.1);
-		p.setPermanenceIncrement(0.1);
-		p.setMaxBoost(1);
-		p.setPotentialPct(0.5);
-		p.setLocalAreaDensity(-1);
-		p.setInitialPermanence(0.4);
-		p.setConnectedPermanence(0.2);
-		p.setMinThreshold(10);
-		p.setActivationThreshold(10);
-		p.setMaxNewSynapseCount(50);
 		p.setSeed(1956);
-		p.setLearningRadius(8);
 		
+//		p.setCellsPerColumn(32);
+//		p.setPotentialRadius(8);
+//		p.setSynPermConnected(0.2);
+//		p.setSynPermTrimThreshold(0.1d);
+//		p.setGlobalInhibition(true);
+//		p.setPermanenceDecrement(0.1);
+//		p.setPermanenceIncrement(0.1);
+//		p.setMaxBoost(1);
+//		p.setPotentialPct(0.5);
+//		p.setLocalAreaDensity(-1);
+//		p.setInitialPermanence(0.4);
+//		p.setConnectedPermanence(0.2);
+//		p.setMinThreshold(10);
+//		p.setActivationThreshold(10);
+//		p.setMaxNewSynapseCount(50);
+//		p.setLearningRadius(8);
+//		
 	}
 	
 	/**

@@ -80,11 +80,11 @@ public class CorvinaConfig {
 	public Region region1(Network network) {
 		Region region = new Region(REGION_1, network);
 		region.add(Network.createLayer(LAYER_23, parameters23())
-				.add(new TemporalMemory())
+		//		.add(new TemporalMemory())
 				.add(new SpatialPooler()))
 		.add(Network.createLayer(LAYER_4, parameters4())
 				.add(new TemporalMemory())
-				.add(new LowMemorySpatialPooler()))
+				.add(new SpatialPooler()))
 //		.add(Network.createLayer(LAYER_5, parameters5())
 //				.add(new TemporalMemory())
 //				.add(new LowMemorySpatialPooler()))
@@ -131,8 +131,8 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters networkParameters() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {32, 32});
-		p.setInputDimensions(new int[] {64, 64});
+		p.setColumnDimensions(new int[] {64, 64});
+		p.setInputDimensions(new int[] {28, 28});
 
 		return p;
 	}
@@ -140,41 +140,41 @@ public class CorvinaConfig {
 	@Bean
 	public Parameters parameters23() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {32, 32});
-		p.setInputDimensions(new int[] {64, 64});
+		p.setColumnDimensions(new int[] {64, 64});
+		p.setInputDimensions(new int[] {28, 28});
 		configureParamters(p);
-		p.setNumActiveColumnsPerInhArea(60);
-		p.setCellsPerColumn(1);
+		// p.setNumActiveColumnsPerInhArea(60);
+		// p.setCellsPerColumn(1);
 		
 		return p;
 	}
 	
 	private void configureParamters(Parameters p) {
 		p.setCellsPerColumn(32);
-		p.setPotentialRadius(8);
+		p.setPotentialRadius(32);
 		p.setSynPermConnected(0.2);
 		p.setSynPermTrimThreshold(0.1d);
 		p.setGlobalInhibition(true);
 		p.setPermanenceDecrement(0.1);
 		p.setPermanenceIncrement(0.1);
 		p.setMaxBoost(1);
-		p.setPotentialPct(0.5);
-		p.setLocalAreaDensity(-1);
+		p.setPotentialPct(0.8);
+		p.setLocalAreaDensity(0.02);
 		p.setInitialPermanence(0.4);
 		p.setConnectedPermanence(0.2);
 		p.setMinThreshold(10);
 		p.setActivationThreshold(10);
 		p.setMaxNewSynapseCount(50);
 		p.setSeed(1956);
-		p.setLearningRadius(8);
+		p.setLearningRadius(32);
 		
 	}
 	
 	@Bean
 	public Parameters parameters4() {
 		Parameters p =  Parameters.getAllDefaultParameters();
-		p.setColumnDimensions(new int[] {16, 16});
-		p.setInputDimensions(new int[] {32, 32});
+		p.setColumnDimensions(new int[] {32, 32});
+		p.setInputDimensions(new int[] {64, 64});
 		configureParamters(p);
 		p.setNumActiveColumnsPerInhArea(10);
 		p.setPotentialRadius(16);

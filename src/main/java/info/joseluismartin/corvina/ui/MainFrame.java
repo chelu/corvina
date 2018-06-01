@@ -76,6 +76,7 @@ public class MainFrame extends JFrame {
 	private File networkFile;
 	private JCheckBox usingSDR = new JCheckBox();
 	private JCheckBox learn  = new JCheckBox("Learn");
+	private JCheckBox classifierLearn = new JCheckBox("Classifer Learn");
 	
 	@Autowired
 	private NetworkView networkView;
@@ -103,6 +104,9 @@ public class MainFrame extends JFrame {
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.corvina.setNetwork(this.networkView.getModel());
 		this.usingSDR.addActionListener(l -> this.corvina.setUsingSDR(this.usingSDR.isSelected()));
+		this.classifierLearn.addActionListener(
+				l -> this.corvina.setClassifierLearn(this.classifierLearn.isEnabled()));
+		
 		refresh();
 	}
 
@@ -154,7 +158,9 @@ public class MainFrame extends JFrame {
 		this.toolBar.add(new JLabel("SDR"));
 		this.toolBar.addSeparator();
 		this.toolBar.add(this.learn);
-		this.toolBar.addSeparator();	
+		this.toolBar.addSeparator();
+		this.toolBar.add(this.classifierLearn);
+		this.toolBar.addSeparator();
 		this.toolBar.add(new JLabel("Hits: "));
 		this.toolBar.add(this.hit);
 		

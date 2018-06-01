@@ -60,7 +60,18 @@ public class MatrixPanel extends JPanel {
 	 */
 	public void setDimensions(int[] dimensions) {
 		this.dimensions = dimensions;
-		Dimension d = new Dimension(dimensions[0]*gap + 20, dimensions[1]*gap + 20);
+		int x, y = 0;
+		if (dimensions.length > 1) {
+			x = dimensions[0];
+			y = dimensions[1];
+		}
+		else {
+			x = (int) Math.sqrt(dimensions[0]);
+			y = x;
+			this.dimensions = new int[] {x, y};
+		}
+		
+		Dimension d = new Dimension(x*gap + 20, y*gap + 20);
 		setPreferredSize(d);
 	}
 
