@@ -104,7 +104,7 @@ public class MainFrame extends JFrame {
 		this.corvina.setNetwork(this.networkView.getModel());
 		this.usingSDR.addActionListener(l -> this.corvina.setUsingSDR(this.usingSDR.isSelected()));
 		this.classifierLearn.addActionListener(
-				l -> this.corvina.setClassifierLearn(this.classifierLearn.isEnabled()));
+				l -> this.corvina.setClassifierLearn(this.classifierLearn.isSelected()));
 		
 		refresh();
 	}
@@ -273,7 +273,7 @@ public class MainFrame extends JFrame {
 		JTextArea area = new JTextArea();
 		area.setMargin(new Insets(20, 20, 20, 20));
 		area.setEditable(false);
-		area.setFont(Font.getFont(Font.MONOSPACED));
+		// area.setFont(Font.getFont(Font.MONOSPACED));
 		area.setText(this.corvina.getReport());
 		SimpleDialog dlg = new SimpleDialog(this, new JScrollPane(area), "Classifer Report");
 		dlg.setLocationRelativeTo(null);
