@@ -170,6 +170,13 @@ public class MainFrame extends JFrame {
 	 */
 	private void load() {
 		JFileChooser chooser = new JFileChooser();
+		
+		if (this.networkFile  != null) {
+			File directory = this.networkFile.getParentFile();
+			if (directory != null)
+				chooser.setCurrentDirectory(directory);
+		}
+		
 		int value = chooser.showOpenDialog(this);
 		if (value == JFileChooser.APPROVE_OPTION) {
 			File f = chooser.getSelectedFile();
@@ -181,6 +188,7 @@ public class MainFrame extends JFrame {
 				setNetwork(cm.getNetwork());
 				this.corvina.setClassifier(cm.getClassifier());
 			} catch (Exception e) {
+				log.error(e);
 				FormUtils.showError("Cannot open file");
 			}
 		}
@@ -218,6 +226,7 @@ public class MainFrame extends JFrame {
             writer.flush();
             writer.close();
 		} catch (Exception e) {
+			log.equals(e);
 			FormUtils.showError("Cannot save network");
 		}
 	}
