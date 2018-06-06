@@ -276,7 +276,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		}
 		
 		if (total > 0) {
-			double error = (double) (wrong / total * 100); 
+			double error = (double) (((double) wrong / (double) total) * 100); 
 			sb.append("\n\n Error: ");
 			sb.append(error);
 			sb.append(" %");

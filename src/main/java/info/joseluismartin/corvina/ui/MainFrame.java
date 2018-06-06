@@ -1,9 +1,7 @@
 package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Insets;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +10,7 @@ import java.io.FileOutputStream;
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -28,6 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.jdal.swing.SimpleDialog;
 import org.jdal.swing.form.FormUtils;
 import org.numenta.nupic.algorithms.CLAClassifier;
+import org.numenta.nupic.algorithms.Classifier;
+import org.numenta.nupic.algorithms.SDRClassifier;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Persistence;
 import org.numenta.nupic.serialize.HTMObjectInput;
@@ -54,6 +55,8 @@ public class MainFrame extends JFrame {
 	private static final String NETWORK = "Network";
 	private static final String IMAGE_SENSOR = "Image Sensor";
 	private static final String LAYER = "Layer";
+	private static final String SDR_CLASSIFIER = "SDRClassifer";
+	private static final String CLA_CLASSIFIER = "CLAClassifer";
 	private static final String START = "Start";
 	private static final String STOP = "Stop";
 	private static final String RESET = "RESET";
@@ -75,6 +78,7 @@ public class MainFrame extends JFrame {
 	private File networkFile;
 	private JCheckBox usingSDR = new JCheckBox();
 	private JCheckBox learn  = new JCheckBox("Learn");
+	private JComboBox<String> classifiers = new JComboBox<>();
 	private JCheckBox classifierLearn = new JCheckBox("Classifer Learn");
 	
 	@Autowired
@@ -106,7 +110,36 @@ public class MainFrame extends JFrame {
 		this.classifierLearn.addActionListener(
 				l -> this.corvina.setClassifierLearn(this.classifierLearn.isSelected()));
 		
+		this.classifiers.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXX");
+		Dimension size = this.classifiers.getPreferredSize();
+		size.width = 200;
+		this.classifiers.setMaximumSize(size);
+		this.classifiers.addItem(CLA_CLASSIFIER);
+		this.classifiers.addItem(SDR_CLASSIFIER);
+		this.classifiers.addActionListener(l -> createClassfier());
+		
 		refresh();
+	}
+
+	
+	/**
+	 * Create classifer based on classifiers combobox.
+	 */
+	private void createClassfier() {
+		String name = (String) this.classifiers.getSelectedItem();
+		
+		if (log.isDebugEnabled())
+			log.debug("Creating classifer [" + name +"]");
+		
+		Classifier classifier = null;
+		
+		if (CLA_CLASSIFIER.equals(name))
+			classifier = new CLAClassifier();
+		else if (SDR_CLASSIFIER.equals(name))
+			classifier = new SDRClassifier();
+		
+		if (classifier != null)
+			this.corvina.setClassifier(classifier);
 	}
 
 	/**
@@ -157,6 +190,8 @@ public class MainFrame extends JFrame {
 		this.toolBar.add(new JLabel("SDR"));
 		this.toolBar.addSeparator();
 		this.toolBar.add(this.learn);
+		this.toolBar.addSeparator();
+		this.toolBar.add(this.classifiers);
 		this.toolBar.addSeparator();
 		this.toolBar.add(this.classifierLearn);
 		this.toolBar.addSeparator();
