@@ -2,6 +2,7 @@ package info.joseluismartin.corvina.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageFilter;
@@ -26,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.io.FileUtils;
 import org.jdal.swing.AbstractView;
 import org.jdal.swing.Selector;
@@ -37,6 +39,7 @@ import org.jdal.swing.form.SimpleBoxFormBuilder;
 import info.joseluismartin.corvina.sensor.DirectoryNameGenerator;
 import info.joseluismartin.corvina.sensor.FileNameGenerator;
 import info.joseluismartin.corvina.sensor.ImageSensor;
+import info.joseluismartin.corvina.sensor.ImageSensor.Type;
 import info.joseluismartin.corvina.sensor.ImageSensorListener;
 import info.joseluismartin.corvina.sensor.NameGenerator;
 
@@ -67,6 +70,7 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 	private JButton chooserButton;
 	private File lastDirectory;
 	private JComboBox<NameGenerator> nameGenerator = new JComboBox<>();
+	private JComboBox<ImageSensor.Type> colorType = new JComboBox<>();
 	private JTextField repeatCicles = new JTextField();
 	
 	@PostConstruct
@@ -87,6 +91,12 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		this.nameGenerator.addItem(new FileNameGenerator());
 		this.nameGenerator.addActionListener(l -> 
 			getModel().setNameGenerator((NameGenerator) nameGenerator.getSelectedItem()));
+		
+		this.colorType.addItem(ImageSensor.Type.BW);
+		this.colorType.addItem(ImageSensor.Type.GRAY);
+		this.colorType.addItem(ImageSensor.Type.COLOR);
+		this.colorType.addActionListener(l -> 
+			getModel().setType((Type) this.colorType.getSelectedItem()));
 		
 		autobind();
 		refresh();
@@ -121,6 +131,8 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		// fb.add(Box.createHorizontalStrut(10), 10);
 		fb.add("Classifier name: ", this.nameGenerator);
 		fb.setMaxWidth(200);
+		fb.add("Color: ", this.colorType);
+		fb.setMaxWidth(100);
 		// fb.add(Box.createHorizontalStrut(10));
 		fb.add("Image: ", this.imageName);
 		fb.add(Box.createHorizontalGlue());

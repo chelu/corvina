@@ -311,6 +311,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(CorvinaConfig.class);
 
 		MainFrame main = ctx.getBean("mainFrame", MainFrame.class);
+		main.setTitle("CORVINA");
 
 		// Start swing application on event thread
 		EventQueue.invokeLater(new Runnable() {

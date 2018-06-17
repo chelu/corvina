@@ -22,11 +22,12 @@ import org.jdal.swing.AbstractView;
 import org.jdal.swing.form.BoxFormBuilder;
 import org.jdal.swing.form.SimpleBoxFormBuilder;
 import org.numenta.nupic.Parameters;
-import org.numenta.nupic.algorithms.SpatialPooler;
 import org.numenta.nupic.algorithms.TemporalMemory;
 import org.numenta.nupic.network.Layer;
 import org.numenta.nupic.network.Network;
 import org.numenta.nupic.network.Region;
+
+import info.joseluismartin.corvina.htm.LowMemorySpatialPooler;
 
 public class NetworkEditor extends AbstractView<Network> implements ActionListener {
 
@@ -121,7 +122,7 @@ public class NetworkEditor extends AbstractView<Network> implements ActionListen
 			Layer<?> layer = Network.createLayer(le.getModel().getName(), p);
 			
 			if (le.isUsingSpatialPooler())
-				layer.add(new SpatialPooler());
+				layer.add(new LowMemorySpatialPooler());
 			
 			if (le.isUsingTemporalMemory())
 				layer.add(new TemporalMemory());

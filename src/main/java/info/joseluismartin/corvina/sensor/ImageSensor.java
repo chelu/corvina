@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.io.File;
@@ -37,8 +38,12 @@ import info.joseluismartin.corvina.image.ImageUtils;
  * @since 1.0
  */
 public class ImageSensor implements Sensor<File> {
+	
+	public enum Type { BW, GRAY, COLOR};
 
 	private static final Log log = LogFactory.getLog(ImageSensor.class);
+	private static final DenseConverter[] DENSE_CONVERTERS = 
+		{ new BWDenseConverter(), new ByteDenseConverter(), ByteDenseConverter.createRGBDenseConverter() };
 	
 	/** Filters to apply to image before expose it to HTM. */
 	private List<ImageFilter> filters = new ArrayList<>();
@@ -63,6 +68,7 @@ public class ImageSensor implements Sensor<File> {
 	private boolean singleImage = true;
 	private List<ImageSensorListener> listeners = new ArrayList<>();
 	private int repeatCicles = 1;
+	private Type type = Type.BW;
 
 	public ImageSensor(String path) {
 	}
@@ -87,9 +93,7 @@ public class ImageSensor implements Sensor<File> {
 		this.imageName = file.getName();
 		this.currentFile = file;
 		updateBucketMap();
-		
-		// convert to gray scale
-		this.image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		this.image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_RGB);
 		this.image.getGraphics().drawImage(source, 0, 0, null);
 		
 		for (ImageFilter filter : filters) {
@@ -106,7 +110,7 @@ public class ImageSensor implements Sensor<File> {
 	}
 
 	private BufferedImage applyFilter(BufferedImage source, ImageFilter filter) {
-		BufferedImage bi = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage bi = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
 		FilteredImageSource fis = new FilteredImageSource(source.getSource(), filter);
 		Image filtered = Toolkit.getDefaultToolkit().createImage(fis);
 		bi.getGraphics().drawImage(filtered, 0, 0, null);
@@ -115,7 +119,7 @@ public class ImageSensor implements Sensor<File> {
 	}
 	
 	private BufferedImage applyOp(BufferedImage source, BufferedImageOp op) {
-		BufferedImage bi = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage bi = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
 		BufferedImage filtered = op.filter(source, null);
 		bi.getGraphics().drawImage(filtered, 0, 0, null);
 		
@@ -137,7 +141,7 @@ public class ImageSensor implements Sensor<File> {
 	}
 	
 	public int[] getImageData() {
-		 byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+		 int[] pixels = ((DataBufferInt) this.image.getRaster().getDataBuffer()).getData();
 		 int width = image.getWidth();
 		 int height = image.getHeight();
 		 boolean hasAlphaChannel = image.getAlphaRaster() != null;
@@ -182,6 +186,15 @@ public class ImageSensor implements Sensor<File> {
 	
 		this.image = applyDinamycFilters(this.dinamycFilters); 
 		
+		int[] array = getImageData();
+		
+		return DENSE_CONVERTERS[this.type.ordinal()].convert(array);
+	}
+
+	/**
+	 * @return
+	 */
+	protected int[] toIntArray() {
 		byte[] data =  ((DataBufferByte) this.image.getRaster().getDataBuffer()).getData();
 		List<Integer> dense = new ArrayList<>();
 		int zeros = 0;
@@ -200,7 +213,6 @@ public class ImageSensor implements Sensor<File> {
 		log.debug("zeros [" + zeros + "] ones [" + ones + "]");
 		
 		int[] array = dense.stream().mapToInt(i -> i).toArray();
-		
 		return array;
 	}
 
@@ -424,6 +436,20 @@ public class ImageSensor implements Sensor<File> {
 	 */
 	public void setRepeatCicles(int repeatCicles) {
 		this.repeatCicles = repeatCicles;
+	}
+	
+	/**
+	 * @return the type
+	 */
+	public Type getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 }

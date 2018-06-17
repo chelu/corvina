@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import gnu.trove.list.array.TIntArrayList;
 import info.joseluismartin.corvina.Corvina;
 import info.joseluismartin.corvina.model.CorvinaModel;
 
@@ -134,9 +135,9 @@ public class MainFrame extends JFrame {
 		Classifier classifier = null;
 		
 		if (CLA_CLASSIFIER.equals(name))
-			classifier = new CLAClassifier();
+			classifier = new CLAClassifier(new TIntArrayList(new int[] { 1 }), 1.0, 1.0, 0);
 		else if (SDR_CLASSIFIER.equals(name))
-			classifier = new SDRClassifier();
+			classifier = new SDRClassifier(new TIntArrayList(new int[] { 1 }), 1.0, 1.0, 0);
 		
 		if (classifier != null)
 			this.corvina.setClassifier(classifier);
