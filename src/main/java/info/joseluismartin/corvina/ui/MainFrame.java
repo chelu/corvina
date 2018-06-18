@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import info.joseluismartin.corvina.Corvina;
+import info.joseluismartin.corvina.htm.DotClassifier;
 import info.joseluismartin.corvina.model.CorvinaModel;
 
 /**
@@ -57,6 +58,7 @@ public class MainFrame extends JFrame {
 	private static final String LAYER = "Layer";
 	private static final String SDR_CLASSIFIER = "SDRClassifer";
 	private static final String CLA_CLASSIFIER = "CLAClassifer";
+	private static final String DOT_CLASSIFIR = "DotClassifier";
 	private static final String START = "Start";
 	private static final String STOP = "Stop";
 	private static final String RESET = "RESET";
@@ -116,6 +118,7 @@ public class MainFrame extends JFrame {
 		this.classifiers.setMaximumSize(size);
 		this.classifiers.addItem(CLA_CLASSIFIER);
 		this.classifiers.addItem(SDR_CLASSIFIER);
+		this.classifiers.addItem(DOT_CLASSIFIR);
 		this.classifiers.addActionListener(l -> createClassfier());
 		
 		refresh();
@@ -137,6 +140,8 @@ public class MainFrame extends JFrame {
 			classifier = new CLAClassifier();
 		else if (SDR_CLASSIFIER.equals(name))
 			classifier = new SDRClassifier();
+		else if (DOT_CLASSIFIR.equals(name))
+			classifier = new DotClassifier();
 		
 		if (classifier != null)
 			this.corvina.setClassifier(classifier);

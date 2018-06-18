@@ -87,7 +87,7 @@ public class LayerEditor extends AbstractView<LayerData> {
 		editor.init();
 		editor.refresh();
 		SimpleDialog dlg = new SimpleDialog(editor.getPanel());
-		dlg.setSize(800, 300);
+		dlg.setSize(900, 400);
 		dlg.setModal(true);
 		dlg.setLocationRelativeTo(this.getPanel());
 		dlg.setVisible(true);
