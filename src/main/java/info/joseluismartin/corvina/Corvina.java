@@ -2,6 +2,7 @@ package info.joseluismartin.corvina;
 
 
 import java.awt.EventQueue;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -128,6 +129,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		
 
 		Map<String, Object> classification = new HashedMap<>();
+		classification.put("inputLength", this.network.getTail().getTail().getConnections().getNumColumns());
 		classification.put("bucketIdx", this.imageSensor.getBucketIdx());
 		classification.put("actValue", this.imageSensor.getClassifierName());
 		int[] toClassify = this.usingSDR  ? t.getSDR() : t.getFeedForwardActiveColumns();
@@ -266,6 +268,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 	public String getReport() {
 		StringBuffer sb = new StringBuffer();
 		long total = 0, wrong = 0;
+		DecimalFormat  df  = new DecimalFormat("#.00");
 		
 
 		for (ClassifierResult r : this.stats.values()) {
@@ -277,8 +280,8 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		
 		if (total > 0) {
 			double error = (double) (((double) wrong / (double) total) * 100); 
-			sb.append("\n\n Error: ");
-			sb.append(error);
+			sb.append("\n\nError: "); 
+			sb.append(df.format(error));
 			sb.append(" %");
 		}
 		

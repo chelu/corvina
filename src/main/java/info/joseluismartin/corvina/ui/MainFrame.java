@@ -82,6 +82,7 @@ public class MainFrame extends JFrame {
 	private JCheckBox learn  = new JCheckBox("Learn");
 	private JComboBox<String> classifiers = new JComboBox<>();
 	private JCheckBox classifierLearn = new JCheckBox("Classifer Learn");
+	private boolean ignoreListeners = false;
 	
 	@Autowired
 	private NetworkView networkView;
