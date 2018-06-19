@@ -99,6 +99,7 @@ public class MainFrame extends JFrame {
 
 	@PostConstruct
 	public void init() {
+		setTitle("Corvina");
 		initToolBar();
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(this.toolBar, BorderLayout.PAGE_START);
