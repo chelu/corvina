@@ -130,6 +130,9 @@ public class MainFrame extends JFrame {
 	 * Create classifer based on classifiers combobox.
 	 */
 	private void createClassfier() {
+		if (this.ignoreListeners)
+			return;
+		
 		String name = (String) this.classifiers.getSelectedItem();
 		
 		if (log.isDebugEnabled())
@@ -228,11 +231,19 @@ public class MainFrame extends JFrame {
 		        CorvinaModel cm = (CorvinaModel) reader.readObject(CorvinaModel.class);
 				setNetwork(cm.getNetwork());
 				this.corvina.setClassifier(cm.getClassifier());
+				this.ignoreListeners = true;
+				refreshClassifier();
+				this.ignoreListeners = false;
 			} catch (Exception e) {
 				log.error(e);
 				FormUtils.showError("Cannot open file");
 			}
 		}
+	}
+
+	private void refreshClassifier() {
+		String className = this.corvina.getClassifier().getClass().getSimpleName();
+		this.classifiers.setSelectedItem(className);
 	}
 
 	/**

@@ -31,7 +31,7 @@ public class DotClassifierTest {
 	public void testLearn() {
 		DotClassifier dc  = new DotClassifier();
 		Map<String, Object> classification = new HashMap<>();
-		classification.put("inputLength", 4);
+		classification.put("outputLength", 4);
 		classification.put(ACTUAL_VALUE, A);
 		classification.put(BUCKET_IDX, 0);
 		dc.compute(1, classification, input[0], true, false);

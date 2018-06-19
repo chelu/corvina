@@ -129,7 +129,7 @@ public class Corvina extends Subscriber<Inference> implements Runnable {
 		
 
 		Map<String, Object> classification = new HashedMap<>();
-		classification.put("inputLength", this.network.getTail().getTail().getConnections().getNumColumns());
+		classification.put("outputLength", this.network.getTail().getTail().getConnections().getNumColumns());
 		classification.put("bucketIdx", this.imageSensor.getBucketIdx());
 		classification.put("actValue", this.imageSensor.getClassifierName());
 		int[] toClassify = this.usingSDR  ? t.getSDR() : t.getFeedForwardActiveColumns();
