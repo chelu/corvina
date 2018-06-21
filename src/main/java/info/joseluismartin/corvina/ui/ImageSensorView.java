@@ -137,14 +137,18 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		
 		// fb.setDebug(true);	
 		fb.row();
+		fb.startBox();
+		fb.row();
 		fb.add(new TitledSeparator("Load Files"));
+		fb.add(this.shuffle);
+		fb.endBox();
 		fb.row();
 		fb.startBox();
 		fb.row();
 		fb.add(this.chooserButton);
 		fb.add(Box.createHorizontalGlue());
 		fb.endBox();
-		fb.row();
+		// fb.row();
 		fb.row(SimpleBoxFormBuilder.SIZE_UNDEFINED);
 		fb.add(new JScrollPane(this.imagesToLoad));
 		fb.row();
