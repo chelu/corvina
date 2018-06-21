@@ -163,6 +163,9 @@ public class MainFrame extends JFrame {
 
 			Classifier classifier = null;
 			double alpha = getAlpha();
+			
+			if (log.isDebugEnabled())
+				log.debug("Using alpha [" + alpha + "]");
 
 			if (CLA_CLASSIFIER.equals(name))
 				classifier = new CLAClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
