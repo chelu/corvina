@@ -8,6 +8,7 @@ import java.awt.image.ImageFilter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,7 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 	private File lastDirectory;
 	private JComboBox<NameGenerator> nameGenerator = new JComboBox<>();
 	private JTextField repeatCicles = new JTextField();
+	private JButton shuffle = new JButton("Suffle");
 	
 	@PostConstruct
 	public void init() {
@@ -87,6 +89,7 @@ public class ImageSensorView extends AbstractView<ImageSensor> implements ImageS
 		this.nameGenerator.addItem(new FileNameGenerator());
 		this.nameGenerator.addActionListener(l -> 
 			getModel().setNameGenerator((NameGenerator) nameGenerator.getSelectedItem()));
+		this.shuffle.addActionListener(l -> { getModel().shuffle(); refresh(); });
 		
 		autobind();
 		refresh();

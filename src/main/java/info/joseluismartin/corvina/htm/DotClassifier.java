@@ -20,7 +20,7 @@ public class DotClassifier implements Persistable, Classifier {
 	
 	private static String BUCKET_IDX = "bucketIdx";
 	private static String ACT_VALUE = "actValue";
-	private static String INPUT_LENGTH = "outputLength";
+	private static String OUTPUT_LENGTH = "outputLength";
 	private static String UNKNOWN = "UNKNOWN";
 	private Map<Integer, double[]> distributionMatrix = new HashMap<>();
 	private List<Integer> learns = new ArrayList<>();
@@ -31,7 +31,7 @@ public class DotClassifier implements Persistable, Classifier {
 	public <T> Classification<T> compute(int recordNum, Map<String, Object> classification, int[] patternNZ,
 			boolean learn, boolean infer) {
 		
-		int outputLength = (int) classification.get(INPUT_LENGTH);
+		int outputLength = (int) classification.get(OUTPUT_LENGTH);
 		int[] output = ArrayUtils.asDense(patternNZ, outputLength);
 		
 		Classification<T> value  = new Classification<T>();
