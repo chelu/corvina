@@ -266,6 +266,7 @@ public class MainFrame extends JFrame {
 
 	private void refreshClassifier() {
 		String className = this.corvina.getClassifier().getClass().getSimpleName();
+		log.info("Loading classifier [" + className + "]");
 		this.classifiers.setSelectedItem(className);
 	}
 
