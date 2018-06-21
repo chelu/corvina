@@ -59,8 +59,8 @@ public class MainFrame extends JFrame {
 	private static final String NETWORK = "Network";
 	private static final String IMAGE_SENSOR = "Image Sensor";
 	private static final String LAYER = "Layer";
-	private static final String SDR_CLASSIFIER = "SDRClassifer";
-	private static final String CLA_CLASSIFIER = "CLAClassifer";
+	private static final String SDR_CLASSIFIER = "SDRClassifier";
+	private static final String CLA_CLASSIFIER = "CLAClassifier";
 	private static final String DOT_CLASSIFIR = "DotClassifier";
 	private static final String START = "Start";
 	private static final String STOP = "Stop";
