@@ -15,6 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -23,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.plaf.OptionPaneUI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -143,21 +145,35 @@ public class MainFrame extends JFrame {
 		
 		String name = (String) this.classifiers.getSelectedItem();
 		
-		if (log.isDebugEnabled())
-			log.debug("Creating classifer [" + name +"]");
-		
-		Classifier classifier = null;
-		double alpha = getAlpha();
-		
-		if (CLA_CLASSIFIER.equals(name))
-			classifier = new CLAClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
-		else if (SDR_CLASSIFIER.equals(name))
-			classifier = new SDRClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
-		else if (DOT_CLASSIFIR.equals(name))
-			classifier = new DotClassifier();
-		
-		if (classifier != null)
-			this.corvina.setClassifier(classifier);
+		if (!name.equals(this.corvina.getClassifier().getClass().getSimpleName())) {
+			int out = JOptionPane.showConfirmDialog(this, "This will delete current clasification.\n Are you sure?", 
+					"Please Confirm", JOptionPane.YES_NO_OPTION);
+			
+			if (out == JOptionPane.NO_OPTION) {
+				this.ignoreListeners = true;
+				this.classifiers.setSelectedItem(this.corvina.getClassifier().getClass().getSimpleName());
+				this.ignoreListeners = false;
+				
+				return;
+			}
+				
+			
+			if (log.isDebugEnabled())
+				log.debug("Creating classifer [" + name +"]");
+
+			Classifier classifier = null;
+			double alpha = getAlpha();
+
+			if (CLA_CLASSIFIER.equals(name))
+				classifier = new CLAClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
+			else if (SDR_CLASSIFIER.equals(name))
+				classifier = new SDRClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
+			else if (DOT_CLASSIFIR.equals(name))
+				classifier = new DotClassifier();
+
+			if (classifier != null)
+				this.corvina.setClassifier(classifier);
+		}
 	}
 
 	
