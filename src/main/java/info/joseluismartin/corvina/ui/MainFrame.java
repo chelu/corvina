@@ -19,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
@@ -38,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import gnu.trove.list.array.TIntArrayList;
 import info.joseluismartin.corvina.Corvina;
 import info.joseluismartin.corvina.htm.DotClassifier;
 import info.joseluismartin.corvina.model.CorvinaModel;
@@ -82,7 +85,10 @@ public class MainFrame extends JFrame {
 	private JCheckBox learn  = new JCheckBox("Learn");
 	private JComboBox<String> classifiers = new JComboBox<>();
 	private JCheckBox classifierLearn = new JCheckBox("Classifer Learn");
+	private JTextField alpha = new JTextField();
+	private JButton alphaButton = new JButton("Apply");
 	private boolean ignoreListeners = false;
+	
 	
 	@Autowired
 	private NetworkView networkView;
@@ -122,6 +128,7 @@ public class MainFrame extends JFrame {
 		this.classifiers.addItem(SDR_CLASSIFIER);
 		this.classifiers.addItem(DOT_CLASSIFIR);
 		this.classifiers.addActionListener(l -> createClassfier());
+		this.alphaButton.addActionListener(l -> createClassfier());
 		
 		refresh();
 	}
@@ -140,16 +147,27 @@ public class MainFrame extends JFrame {
 			log.debug("Creating classifer [" + name +"]");
 		
 		Classifier classifier = null;
+		double alpha = getAlpha();
 		
 		if (CLA_CLASSIFIER.equals(name))
-			classifier = new CLAClassifier();
+			classifier = new CLAClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
 		else if (SDR_CLASSIFIER.equals(name))
-			classifier = new SDRClassifier();
+			classifier = new SDRClassifier(new TIntArrayList(new int[] { 1 }), alpha, 0.3, 0);
 		else if (DOT_CLASSIFIR.equals(name))
 			classifier = new DotClassifier();
 		
 		if (classifier != null)
 			this.corvina.setClassifier(classifier);
+	}
+
+	
+	private double getAlpha() {
+		try {
+			return Double.parseDouble(this.alpha.getText());
+		}
+		catch (Exception e) {
+			return 0.001;
+		}
 	}
 
 	/**
@@ -173,7 +191,9 @@ public class MainFrame extends JFrame {
 		this.loadButton.addActionListener(e -> load());
 		this.learn.setSelected(true);
 		this.learn.addActionListener(e -> this.corvina.getNetwork().setLearn(this.learn.isSelected()));
-		
+		Dimension alphaSize = this.alpha.getPreferredSize().getSize();
+		alphaSize.width = 100;
+		this.alpha.setMaximumSize(alphaSize);
 		// Load and save buttons.
 		this.toolBar.add(this.newButton);
 		this.toolBar.add(this.saveButton);
@@ -202,6 +222,8 @@ public class MainFrame extends JFrame {
 		this.toolBar.add(this.learn);
 		this.toolBar.addSeparator();
 		this.toolBar.add(this.classifiers);
+		this.toolBar.add(this.alpha);
+		this.toolBar.add(this.alphaButton);
 		this.toolBar.addSeparator();
 		this.toolBar.add(this.classifierLearn);
 		this.toolBar.addSeparator();

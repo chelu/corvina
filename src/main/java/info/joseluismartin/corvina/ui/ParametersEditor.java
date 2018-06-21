@@ -70,7 +70,7 @@ public class ParametersEditor extends AbstractView<Parameters> {
 		fb.setDebug(false);
 		fb.add(getMessage("cellPerColumn"), this.cellsPerColumn);
 		fb.add(getMessage("potentialRadius"), this.potentialRadius);
-		fb.add(getMessage("symPermConnected"), this.synPermConnected);
+		fb.add(getMessage("synPermConnected"), this.synPermConnected);
 		fb.row();
 		fb.add(getMessage("synPermTrimThreshold"), this.synPermTrimThreshold);
 		fb.add(getMessage("learningRadius"), this.learningRadius);
